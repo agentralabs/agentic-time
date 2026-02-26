@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 400" width="980" height="400">
+  <defs>
+    <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="980" height="400" fill="url(#heroBg)" rx="12" />
+
+  <!-- Clock icon -->
+  <circle cx="490" cy="120" r="60" fill="none" stroke="#e8e8e8" stroke-width="2.5" />
+  <line x1="490" y1="120" x2="490" y2="78" stroke="#e8e8e8" stroke-width="3" stroke-linecap="round" />
+  <line x1="490" y1="120" x2="520" y2="100" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" />
+  <circle cx="490" cy="120" r="5" fill="#f57c00" />
+  <line x1="490" y1="120" x2="478" y2="75" stroke="#f57c00" stroke-width="1.5" stroke-linecap="round" />
+
+  <!-- Title -->
+  <text x="490" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#e8e8e8">AgenticTime</text>
+
+  <!-- Tagline -->
+  <text x="490" y="260" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#a0a0a0">Temporal reasoning for AI agents</text>
+
+  <!-- Feature chips -->
+  <rect x="160" y="290" width="130" height="32" rx="16" fill="#2a2a4a" stroke="#f57c00" stroke-width="1" />
+  <text x="225" y="311" text-anchor="middle" font-family="monospace" font-size="12" fill="#f57c00">Deadlines</text>
+
+  <rect x="310" y="290" width="130" height="32" rx="16" fill="#2a2a4a" stroke="#4caf50" stroke-width="1" />
+  <text x="375" y="311" text-anchor="middle" font-family="monospace" font-size="12" fill="#4caf50">Schedules</text>
+
+  <rect x="460" y="290" width="130" height="32" rx="16" fill="#2a2a4a" stroke="#4a9eff" stroke-width="1" />
+  <text x="525" y="311" text-anchor="middle" font-family="monospace" font-size="12" fill="#4a9eff">Sequences</text>
+
+  <rect x="610" y="290" width="130" height="32" rx="16" fill="#2a2a4a" stroke="#bb86fc" stroke-width="1" />
+  <text x="675" y="311" text-anchor="middle" font-family="monospace" font-size="12" fill="#bb86fc">Decay</text>
+
+  <!-- Install command -->
+  <rect x="240" y="345" width="500" height="36" rx="8" fill="#0d1117" stroke="#333" stroke-width="1" />
+  <text x="260" y="368" font-family="monospace" font-size="13" fill="#7ee787">$</text>
+  <text x="280" y="368" font-family="monospace" font-size="13" fill="#c9d1d9">curl -fsSL https://agentralabs.tech/install/time | bash</text>
+</svg>

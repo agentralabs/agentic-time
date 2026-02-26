@@ -1,0 +1,16 @@
+[package]
+name = "agentic-time-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "WebAssembly bindings for AgenticTime"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+agentic-time = { workspace = true }
+serde_json = { workspace = true }
+wasm-bindgen = "0.2"

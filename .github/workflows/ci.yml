@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  rust:
+    name: Rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Build release
+        run: cargo build --workspace --release
+
+  python-sdk-tests:
+    name: Python SDK Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (for atime binary)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build atime binary
+        run: cargo build --release
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python SDK
+        working-directory: python
+        run: |
+          pip install ".[dev]"
+
+      - name: Run Python SDK tests
+        working-directory: python
+        run: |
+          PATH="${GITHUB_WORKSPACE}/target/release:$PATH" pytest tests/ -v --cov=agentic_time
+
+  guardrails:
+    name: Guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install command guardrails
+        run: bash scripts/check-install-commands.sh
+      - name: Canonical sister guardrails
+        run: bash scripts/check-canonical-sister.sh
+      - name: Runtime hardening guardrails
+        run: bash scripts/check-runtime-hardening.sh
+      - name: Primary problem regression
+        run: bash scripts/test-primary-problems.sh

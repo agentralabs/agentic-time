@@ -1,0 +1,37 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/agentic-time",
+    "crates/agentic-time-mcp",
+    "crates/agentic-time-cli",
+    "crates/agentic-time-ffi",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/agentralabs/agentic-time"
+authors = ["Agentralabs"]
+
+[workspace.dependencies]
+# Core
+chrono = { version = "0.4", features = ["serde"] }
+blake3 = "1.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+
+# Async
+tokio = { version = "1.36", features = ["full"] }
+
+# MCP
+uuid = { version = "1.7", features = ["v4", "serde"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Internal
+agentic-time = { path = "crates/agentic-time" }

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 500" width="980" height="500">
+  <rect width="980" height="500" fill="#1a1a2e" rx="12" />
+
+  <text x="490" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#e8e8e8">Agentra Ecosystem Architecture</text>
+
+  <!-- Agent -->
+  <rect x="370" y="55" width="240" height="45" rx="8" fill="#2a2a4a" stroke="#f57c00" stroke-width="2" />
+  <text x="490" y="83" text-anchor="middle" font-family="monospace" font-size="14" fill="#f57c00">AI Agent</text>
+
+  <!-- MCP Protocol line -->
+  <line x1="490" y1="100" x2="490" y2="130" stroke="#666" stroke-width="2" />
+  <text x="505" y="120" font-family="monospace" font-size="9" fill="#888">MCP</text>
+
+  <!-- Sisters row -->
+  <!-- Memory -->
+  <rect x="30" y="135" width="170" height="70" rx="8" fill="#1e3a1e" stroke="#4caf50" stroke-width="1.5" />
+  <text x="115" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#4caf50">AgenticMemory</text>
+  <text x="115" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#81c784">.amem</text>
+
+  <!-- Codebase -->
+  <rect x="220" y="135" width="170" height="70" rx="8" fill="#1e2a3e" stroke="#4a9eff" stroke-width="1.5" />
+  <text x="305" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#4a9eff">AgenticCodebase</text>
+  <text x="305" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#8ab4f8">.acb</text>
+
+  <!-- Vision -->
+  <rect x="410" y="135" width="170" height="70" rx="8" fill="#3a2a1e" stroke="#ff9800" stroke-width="1.5" />
+  <text x="495" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#ff9800">AgenticVision</text>
+  <text x="495" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ffb74d">.avis</text>
+
+  <!-- Identity -->
+  <rect x="600" y="135" width="170" height="70" rx="8" fill="#2a1e3a" stroke="#bb86fc" stroke-width="1.5" />
+  <text x="685" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#bb86fc">AgenticIdentity</text>
+  <text x="685" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ce93d8">.aid</text>
+
+  <!-- Time (highlighted) -->
+  <rect x="790" y="135" width="170" height="70" rx="8" fill="#3a2a1a" stroke="#f57c00" stroke-width="2.5" />
+  <text x="875" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#f57c00">AgenticTime</text>
+  <text x="875" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ffb74d">.atime</text>
+
+  <!-- Connection lines from agent to each sister -->
+  <line x1="400" y1="100" x2="115" y2="135" stroke="#666" stroke-width="1" />
+  <line x1="430" y1="100" x2="305" y2="135" stroke="#666" stroke-width="1" />
+  <line x1="490" y1="100" x2="495" y2="135" stroke="#666" stroke-width="1" />
+  <line x1="550" y1="100" x2="685" y2="135" stroke="#666" stroke-width="1" />
+  <line x1="580" y1="100" x2="875" y2="135" stroke="#666" stroke-width="1" />
+
+  <!-- Time 4-crate detail -->
+  <rect x="50" y="250" width="880" height="220" rx="10" fill="#0f0f1e" stroke="#333" stroke-width="1" />
+  <text x="490" y="275" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="#f57c00">AgenticTime Internal Architecture</text>
+
+  <!-- MCP crate -->
+  <rect x="80" y="295" width="250" height="55" rx="6" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.5" />
+  <text x="205" y="318" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#4a9eff">agentic-time-mcp</text>
+  <text x="205" y="336" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ab4f8">19 tools | resources | prompts</text>
+
+  <!-- Core crate -->
+  <rect x="365" y="295" width="250" height="55" rx="6" fill="#1a3a1a" stroke="#4caf50" stroke-width="1.5" />
+  <text x="490" y="318" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#4caf50">agentic-time-core</text>
+  <text x="490" y="336" text-anchor="middle" font-family="monospace" font-size="9" fill="#81c784">entities | format | decay math</text>
+
+  <!-- CLI crate -->
+  <rect x="80" y="370" width="180" height="45" rx="6" fill="#2a2a4a" stroke="#bb86fc" stroke-width="1" />
+  <text x="170" y="393" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#bb86fc">agentic-time-cli</text>
+  <text x="170" y="407" text-anchor="middle" font-family="monospace" font-size="9" fill="#ce93d8">atime command</text>
+
+  <!-- FFI crate -->
+  <rect x="285" y="370" width="180" height="45" rx="6" fill="#2a2a4a" stroke="#bb86fc" stroke-width="1" />
+  <text x="375" y="393" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#bb86fc">agentic-time-ffi</text>
+  <text x="375" y="407" text-anchor="middle" font-family="monospace" font-size="9" fill="#ce93d8">C bindings</text>
+
+  <!-- .atime file -->
+  <rect x="490" y="370" width="180" height="45" rx="6" fill="#3a2a1a" stroke="#f57c00" stroke-width="1.5" />
+  <text x="580" y="398" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#f57c00">project.atime</text>
+
+  <!-- Bindings -->
+  <rect x="695" y="295" width="100" height="35" rx="4" fill="#2a2a4a" stroke="#666" stroke-width="1" />
+  <text x="745" y="317" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">Python</text>
+
+  <rect x="810" y="295" width="100" height="35" rx="4" fill="#2a2a4a" stroke="#666" stroke-width="1" />
+  <text x="860" y="317" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">npm/WASM</text>
+
+  <!-- Arrows -->
+  <line x1="330" y1="320" x2="365" y2="320" stroke="#666" stroke-width="1.5" />
+  <polygon points="363,316 369,320 363,324" fill="#666" />
+  <line x1="490" y1="350" x2="490" y2="370" stroke="#666" stroke-width="1.5" />
+  <polygon points="486,368 490,374 494,368" fill="#666" />
+</svg>

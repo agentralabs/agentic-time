@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg)" />
+  <!-- Clock face -->
+  <circle cx="64" cy="64" r="40" fill="none" stroke="#e8e8e8" stroke-width="3" />
+  <!-- Hour markers -->
+  <line x1="64" y1="28" x2="64" y2="34" stroke="#e8e8e8" stroke-width="2" />
+  <line x1="64" y1="94" x2="64" y2="100" stroke="#e8e8e8" stroke-width="2" />
+  <line x1="28" y1="64" x2="34" y2="64" stroke="#e8e8e8" stroke-width="2" />
+  <line x1="94" y1="64" x2="100" y2="64" stroke="#e8e8e8" stroke-width="2" />
+  <!-- Hour hand -->
+  <line x1="64" y1="64" x2="64" y2="42" stroke="#e8e8e8" stroke-width="3" stroke-linecap="round" />
+  <!-- Minute hand -->
+  <line x1="64" y1="64" x2="82" y2="52" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" />
+  <!-- Center dot (orange accent) -->
+  <circle cx="64" cy="64" r="4" fill="#f57c00" />
+  <!-- Second hand (orange) -->
+  <line x1="64" y1="64" x2="56" y2="36" stroke="#f57c00" stroke-width="1.5" stroke-linecap="round" />
+</svg>

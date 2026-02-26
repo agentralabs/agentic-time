@@ -1,0 +1,21 @@
+[package]
+name = "agentic-time"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Temporal reasoning for AI agents"
+keywords = ["ai", "agents", "time", "temporal", "scheduling"]
+categories = ["data-structures", "date-and-time"]
+
+[dependencies]
+chrono = { workspace = true }
+blake3 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.10"

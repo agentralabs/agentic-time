@@ -1,0 +1,29 @@
+{
+  "key": "time",
+  "name": "AgenticTime",
+  "include_landing": true,
+  "page_ids": [
+    "overview",
+    "experience-with-vs-without",
+    "quickstart",
+    "installation",
+    "command-surface",
+    "runtime-install-sync",
+    "integration-guide",
+    "concepts",
+    "api-reference",
+    "file-format",
+    "benchmarks",
+    "faq",
+    "playbooks-agent-integration",
+    "mcp-tools",
+    "mcp-resources",
+    "mcp-prompts",
+    "cli-reference",
+    "ffi-reference",
+    "architecture",
+    "troubleshooting",
+    "configuration"
+  ],
+  "slug_by_id": {}
+}

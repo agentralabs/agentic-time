@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 400" width="980" height="400">
+  <rect width="980" height="400" fill="#1a1a2e" rx="12" />
+
+  <text x="490" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#e8e8e8">AgenticTime Performance Benchmarks</text>
+
+  <!-- Chart area -->
+  <line x1="100" y1="60" x2="100" y2="340" stroke="#333" stroke-width="1" />
+  <line x1="100" y1="340" x2="900" y2="340" stroke="#333" stroke-width="1" />
+
+  <!-- Y-axis labels -->
+  <text x="90" y="90" text-anchor="end" font-family="monospace" font-size="10" fill="#888">10ms</text>
+  <text x="90" y="152" text-anchor="end" font-family="monospace" font-size="10" fill="#888">5ms</text>
+  <text x="90" y="215" text-anchor="end" font-family="monospace" font-size="10" fill="#888">1ms</text>
+  <text x="90" y="277" text-anchor="end" font-family="monospace" font-size="10" fill="#888">0.1ms</text>
+  <text x="90" y="340" text-anchor="end" font-family="monospace" font-size="10" fill="#888">0.01ms</text>
+
+  <!-- Grid lines -->
+  <line x1="100" y1="90" x2="900" y2="90" stroke="#222" stroke-width="0.5" stroke-dasharray="4,4" />
+  <line x1="100" y1="152" x2="900" y2="152" stroke="#222" stroke-width="0.5" stroke-dasharray="4,4" />
+  <line x1="100" y1="215" x2="900" y2="215" stroke="#222" stroke-width="0.5" stroke-dasharray="4,4" />
+  <line x1="100" y1="277" x2="900" y2="277" stroke="#222" stroke-width="0.5" stroke-dasharray="4,4" />
+
+  <!-- Bars: Add Deadline -->
+  <rect x="140" y="310" width="60" height="30" rx="3" fill="#f57c00" opacity="0.9" />
+  <rect x="210" y="308" width="60" height="32" rx="3" fill="#f57c00" opacity="0.7" />
+  <rect x="280" y="305" width="60" height="35" rx="3" fill="#f57c00" opacity="0.5" />
+  <text x="230" y="365" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">Add deadline</text>
+
+  <!-- Bars: List Deadlines -->
+  <rect x="380" y="290" width="60" height="50" rx="3" fill="#4a9eff" opacity="0.9" />
+  <rect x="450" y="260" width="60" height="80" rx="3" fill="#4a9eff" opacity="0.7" />
+  <rect x="520" y="220" width="60" height="120" rx="3" fill="#4a9eff" opacity="0.5" />
+  <text x="470" y="365" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">List deadlines</text>
+
+  <!-- Bars: Conflict Detection -->
+  <rect x="620" y="280" width="60" height="60" rx="3" fill="#4caf50" opacity="0.9" />
+  <rect x="690" y="245" width="60" height="95" rx="3" fill="#4caf50" opacity="0.7" />
+  <rect x="760" y="190" width="60" height="150" rx="3" fill="#4caf50" opacity="0.5" />
+  <text x="710" y="365" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">Conflict check</text>
+
+  <!-- Legend -->
+  <rect x="100" y="380" width="12" height="12" rx="2" fill="#f57c00" opacity="0.9" />
+  <text x="118" y="391" font-family="monospace" font-size="10" fill="#aaa">100 entities</text>
+  <rect x="260" y="380" width="12" height="12" rx="2" fill="#f57c00" opacity="0.7" />
+  <text x="278" y="391" font-family="monospace" font-size="10" fill="#aaa">1K entities</text>
+  <rect x="420" y="380" width="12" height="12" rx="2" fill="#f57c00" opacity="0.5" />
+  <text x="438" y="391" font-family="monospace" font-size="10" fill="#aaa">10K entities</text>
+</svg>
