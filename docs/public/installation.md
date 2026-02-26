@@ -30,6 +30,13 @@ npm install @agenticamem/time
 pip install agentic-time
 ```
 
+## Cargo (crates.io)
+
+```bash
+cargo install agentic-time-cli
+cargo install agentic-time-mcp
+```
+
 ## Cargo (from source)
 
 ```bash

@@ -55,7 +55,8 @@ curl -fsSL https://agentralabs.tech/install/time/server | bash
 |--------|---------|
 | npm | `npm install @agenticamem/time` |
 | pip | `pip install agentic-time` |
-| cargo | `cargo install --git https://github.com/agentralabs/agentic-time --locked agentic-time-mcp` |
+| cargo | `cargo install agentic-time-cli agentic-time-mcp` |
+| cargo (git) | `cargo install --git https://github.com/agentralabs/agentic-time --locked agentic-time-mcp` |
 
 **Standalone guarantee:** AgenticTime is fully standalone. It does not require any other Agentra sister to be installed.
 
