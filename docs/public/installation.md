@@ -21,7 +21,7 @@ curl -fsSL https://agentralabs.tech/install/time/server | bash
 ## npm
 
 ```bash
-npm install @agenticamem/agentic-time
+npm install @agenticamem/time
 ```
 
 ## PyPI

@@ -6,7 +6,7 @@
   <a href="https://github.com/agentralabs/agentic-time/actions"><img src="https://github.com/agentralabs/agentic-time/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://crates.io/crates/agentic-time"><img src="https://img.shields.io/crates/v/agentic-time.svg" alt="crates.io" /></a>
   <a href="https://pypi.org/project/agentic-time/"><img src="https://img.shields.io/pypi/v/agentic-time.svg" alt="PyPI" /></a>
-  <a href="https://www.npmjs.com/package/@agenticamem/agentic-time"><img src="https://img.shields.io/npm/v/@agenticamem/agentic-time.svg" alt="npm" /></a>
+  <a href="https://www.npmjs.com/package/@agenticamem/time"><img src="https://img.shields.io/npm/v/@agenticamem/time.svg" alt="npm" /></a>
   <a href="https://github.com/agentralabs/agentic-time/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="License" /></a>
 </p>
 
@@ -53,7 +53,7 @@ curl -fsSL https://agentralabs.tech/install/time/server | bash
 
 | Method | Command |
 |--------|---------|
-| npm | `npm install @agenticamem/agentic-time` |
+| npm | `npm install @agenticamem/time` |
 | pip | `pip install agentic-time` |
 | cargo | `cargo install --git https://github.com/agentralabs/agentic-time --locked agentic-time-mcp` |
 
