@@ -8,3 +8,13 @@
 planning-docs/
 docs/internal/
 ECOSYSTEM-CONVENTIONS.md
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
