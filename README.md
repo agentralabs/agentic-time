@@ -13,6 +13,7 @@
   <a href="#install"><img src="https://img.shields.io/badge/cargo_install-agentic--time-F59E0B?style=for-the-badge&logo=rust&logoColor=white" alt="cargo install"></a>
   <a href="#mcp-server"><img src="https://img.shields.io/badge/MCP_Server-agentic--time--mcp-10B981?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAydjIwTTIgMTJoMjAiLz48L3N2Zz4=&logoColor=white" alt="MCP Server"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" alt="MIT License"></a>
+  <a href="paper/paper-i-temporal-format/agentictime-paper.pdf"><img src="https://img.shields.io/badge/Research-Paper_I-8B5CF6?style=for-the-badge" alt="Research Paper I"></a>
   <a href="docs/api-reference.md"><img src="https://img.shields.io/badge/format-.atime-3B82F6?style=for-the-badge" alt=".atime format"></a>
 </p>
 
@@ -25,7 +26,7 @@
 </p>
 
 <p align="center">
-  <a href="#problems-solved">Problems Solved</a> · <a href="#quickstart">Quickstart</a> · <a href="#how-it-works">How It Works</a> · <a href="#mcp-tools">MCP Tools</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#install">Install</a> · <a href="docs/public/api-reference.md">API</a>
+  <a href="#problems-solved">Problems Solved</a> · <a href="#quickstart">Quickstart</a> · <a href="#how-it-works">How It Works</a> · <a href="#mcp-tools">MCP Tools</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#install">Install</a> · <a href="docs/public/api-reference.md">API</a> · <a href="paper/paper-i-temporal-format/agentictime-paper.pdf">Papers</a>
 </p>
 
 ---
@@ -492,6 +493,9 @@ The core runtime is written in Rust for performance and safety. All state lives 
 | MCP server | **21** | Protocol, tools, prompts, sessions |
 | **Total** | **83** | All passing |
 
+**Research paper:**
+- [Paper I: AgenticTime temporal format + v0.1](paper/paper-i-temporal-format/agentictime-paper.pdf)
+
 ---
 
 ## Repository Structure
@@ -507,6 +511,7 @@ agentic-time/
 │   ├── agentic-time-mcp/         # MCP server (crates.io: agentic-time-mcp)
 │   └── agentic-time-ffi/         # FFI bindings (crates.io: agentic-time-ffi)
 ├── python/                       # Python SDK (PyPI: agentic-time)
+├── paper/                        # Research papers (I)
 ├── docs/                         # Documentation
 └── scripts/                      # CI and guardrail scripts
 ```
