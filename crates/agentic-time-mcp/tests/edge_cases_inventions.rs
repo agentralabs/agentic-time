@@ -5,7 +5,7 @@
 //! stress tests, full lifecycle workflows, and cross-sister temporal patterns
 //! (Memory-Time, Identity-Time, Vision-Time, Codebase-Time, multi-entity consistency).
 
-use serde_json::{json, Value};
+use serde_json::json;
 use tempfile::tempdir;
 
 // =========================================================================
@@ -1985,7 +1985,7 @@ async fn test_memory_decay_staleness_half_life() {
     // At t=0, value should be very close to initial
     let current = vval["current_value"].as_f64().unwrap();
     assert!(
-        current >= 99.0 && current <= 100.0,
+        (99.0..=100.0).contains(&current),
         "At t=0 value should be ~100, got {}",
         current
     );
@@ -2098,7 +2098,7 @@ async fn test_memory_duration_consolidation() {
     // PERT: (20 + 4*45 + 90) / 6 = 48.33... -> 48
     let pert = val["pert_estimate_minutes"].as_i64().unwrap();
     assert!(
-        pert >= 45 && pert <= 50,
+        (45..=50).contains(&pert),
         "PERT estimate should be ~48, got {}",
         pert
     );
