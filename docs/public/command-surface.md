@@ -37,28 +37,54 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 
 ## MCP Tools (agentic-time-mcp)
 
+### Deadline Tools
+
 | Tool | Description |
 |------|-------------|
-| `time_deadline_add` | Add a deadline |
-| `time_deadline_list` | List deadlines |
-| `time_deadline_update` | Update a deadline |
-| `time_deadline_remove` | Remove a deadline |
-| `time_duration_estimate` | Create a duration estimate |
-| `time_duration_track` | Start/stop duration tracking |
-| `time_duration_report` | Duration estimate vs actual report |
-| `time_schedule_add` | Add a schedule |
-| `time_schedule_list` | List schedules |
-| `time_schedule_conflicts` | Detect conflicts |
-| `time_sequence_create` | Create a sequence |
-| `time_sequence_step` | Manage sequence steps |
-| `time_sequence_status` | Sequence progress |
-| `time_decay_configure` | Configure decay |
-| `time_decay_query` | Query freshness |
-| `time_decay_reset` | Reset decay config |
-| `time_stats` | Graph statistics |
-| `time_export` | Export data |
-| `time_import` | Import data |
-| `time_log` | Log temporal observation |
+| `time_deadline_add` | Add a new deadline with optional warning threshold and consequences |
+| `time_deadline_complete` | Mark a deadline as completed |
+| `time_deadline_list` | List deadlines with optional filters |
+| `time_deadline_overdue` | List all overdue deadlines |
+
+### Schedule Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_schedule_create` | Create a new scheduled event |
+| `time_schedule_reschedule` | Reschedule an event to a new time |
+| `time_schedule_range` | Get schedule for a time range |
+| `time_schedule_available` | Find available time slots in a range |
+| `time_schedule_conflicts` | Check for scheduling conflicts |
+
+### Sequence Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_sequence_create` | Create a sequence of ordered steps |
+| `time_sequence_advance` | Complete the current step and advance |
+| `time_sequence_status` | Get the current status of a sequence |
+
+### Decay Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_decay_create` | Create a decay model tracking value over time |
+| `time_decay_value` | Get the current value of a decay model |
+| `time_decay_alert` | Get decay models approaching a threshold |
+
+### Duration Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_duration_estimate` | Create a duration estimate with uncertainty (PERT model) |
+| `time_duration_aggregate` | Aggregate multiple duration estimates |
+
+### General Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_stats` | Get temporal statistics (counts by type and status) |
+| `time_refresh` | Refresh all statuses (update overdue deadlines, recalculate decays) |
 
 ## MCP Resources (atime://)
 

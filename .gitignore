@@ -9,6 +9,9 @@ planning-docs/
 docs/internal/
 ECOSYSTEM-CONVENTIONS.md
 
+# Local goals (internal only)
+goals/
+
 # LaTeX build artifacts
 *.aux
 *.bbl
