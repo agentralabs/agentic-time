@@ -21,7 +21,10 @@ fn edge_01_invalid_temporal_id_format_rejected() {
 #[test]
 fn edge_01_empty_string_temporal_id_rejected() {
     let result = "".parse::<TemporalId>();
-    assert!(result.is_err(), "Empty string must be rejected as TemporalId");
+    assert!(
+        result.is_err(),
+        "Empty string must be rejected as TemporalId"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -48,7 +51,10 @@ fn edge_04_complete_nonexistent_deadline_errors() {
 
     let bogus_id = TemporalId::new();
     let result = engine.complete_deadline(&bogus_id);
-    assert!(result.is_err(), "Completing nonexistent deadline must error");
+    assert!(
+        result.is_err(),
+        "Completing nonexistent deadline must error"
+    );
     let err = result.unwrap_err().to_string();
     assert!(
         err.contains("not found"),
@@ -66,7 +72,10 @@ fn edge_04_cancel_nonexistent_deadline_errors() {
 
     let bogus_id = TemporalId::new();
     let result = engine.cancel_deadline(&bogus_id);
-    assert!(result.is_err(), "Cancelling nonexistent deadline must error");
+    assert!(
+        result.is_err(),
+        "Cancelling nonexistent deadline must error"
+    );
 }
 
 #[test]
@@ -119,7 +128,10 @@ fn edge_05_negative_duration_pert_still_computes() {
     let d = DurationEstimate::new("Negative test", -10, -5, -2);
     let pert = d.pert_estimate();
     // PERT = (O + 4M + P) / 6 = (-10 + 4(-5) + (-2)) / 6 = -32/6 = -5
-    assert!(pert.num_seconds() < 0, "Negative PERT estimate is mathematically valid");
+    assert!(
+        pert.num_seconds() < 0,
+        "Negative PERT estimate is mathematically valid"
+    );
 }
 
 #[test]
@@ -203,10 +215,7 @@ fn edge_07_truncated_header() {
     std::fs::write(&path, b"ATIM\x01\x00\x00").unwrap();
 
     let result = TimeFile::open(&path);
-    assert!(
-        result.is_err(),
-        "Truncated header must produce an IO error"
-    );
+    assert!(result.is_err(), "Truncated header must produce an IO error");
 }
 
 #[test]
@@ -237,10 +246,7 @@ fn edge_07_valid_header_corrupted_entity() {
     std::fs::write(&path, &corrupted).unwrap();
 
     let result = TimeFile::open(&path);
-    assert!(
-        result.is_err(),
-        "Corrupted entity data must error on open"
-    );
+    assert!(result.is_err(), "Corrupted entity data must error on open");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -287,7 +293,10 @@ fn edge_09_all_timestamps_are_utc() {
     // Reopen and verify
     let tf2 = TimeFile::open(&path).unwrap();
     let loaded: Deadline = tf2.get(&id).unwrap().unwrap();
-    assert_eq!(loaded.due_at, utc_time, "Timestamp must be preserved in UTC");
+    assert_eq!(
+        loaded.due_at, utc_time,
+        "Timestamp must be preserved in UTC"
+    );
 }
 
 #[test]
@@ -323,7 +332,10 @@ fn edge_10_far_future_deadline() {
 
     let tf2 = TimeFile::open(&path).unwrap();
     let loaded: Deadline = tf2.get(&id).unwrap().unwrap();
-    assert_eq!(loaded.due_at, far_future, "Far future date must survive round-trip");
+    assert_eq!(
+        loaded.due_at, far_future,
+        "Far future date must survive round-trip"
+    );
 }
 
 #[test]
@@ -341,7 +353,11 @@ fn edge_10_past_deadline_overdue_detection() {
 
     let qe = QueryEngine::new(&tf);
     let overdue = qe.overdue_deadlines().unwrap();
-    assert_eq!(overdue.len(), 1, "Historical deadline must be detected as overdue");
+    assert_eq!(
+        overdue.len(),
+        1,
+        "Historical deadline must be detected as overdue"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -444,7 +460,11 @@ fn edge_15_unicode_labels() {
     let tf2 = TimeFile::open(&path).unwrap();
     for (i, id) in ids.iter().enumerate() {
         let loaded: Deadline = tf2.get(id).unwrap().unwrap();
-        assert_eq!(loaded.label, labels[i], "Unicode label '{}' must survive round-trip", labels[i]);
+        assert_eq!(
+            loaded.label, labels[i],
+            "Unicode label '{}' must survive round-trip",
+            labels[i]
+        );
     }
 }
 
@@ -581,9 +601,7 @@ fn stress_10k_deadline_query_performance() {
 
     // Due-within query
     let start = Instant::now();
-    let due_soon = qe
-        .deadlines_due_within(ChronoDuration::hours(24))
-        .unwrap();
+    let due_soon = qe.deadlines_due_within(ChronoDuration::hours(24)).unwrap();
     let elapsed = start.elapsed();
     println!(
         "10K due-within query: {:?} ({} results)",
@@ -663,10 +681,7 @@ fn stress_update_all_statuses_with_many_entities() {
     // Mix of overdue and future deadlines
     for i in 0..100 {
         let hours = if i % 2 == 0 { -24 } else { 24 };
-        let d = Deadline::new(
-            format!("D{}", i),
-            Utc::now() + ChronoDuration::hours(hours),
-        );
+        let d = Deadline::new(format!("D{}", i), Utc::now() + ChronoDuration::hours(hours));
         tf.add(EntityType::Deadline, d.id, &d).unwrap();
     }
 
@@ -692,8 +707,14 @@ fn stress_update_all_statuses_with_many_entities() {
     );
 
     // All overdue deadlines should have been updated
-    assert!(report.deadlines_updated > 0, "Some deadlines should have been updated");
-    assert_eq!(report.decays_updated, 50, "All 50 decays should have been updated");
+    assert!(
+        report.deadlines_updated > 0,
+        "Some deadlines should have been updated"
+    );
+    assert_eq!(
+        report.decays_updated, 50,
+        "All 50 decays should have been updated"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -817,7 +838,10 @@ fn stress_available_slots_50_schedules() {
         slots.len()
     );
 
-    assert!(slots.len() > 0, "Should find available slots between meetings");
+    assert!(
+        slots.len() > 0,
+        "Should find available slots between meetings"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -926,11 +950,7 @@ fn stress_sequence_full_advancement() {
 
 #[test]
 fn boundary_decay_zero_rate() {
-    let dm = DecayModel::new(
-        "Zero rate",
-        1.0,
-        DecayType::Linear { rate: 0.0 },
-    );
+    let dm = DecayModel::new("Zero rate", 1.0, DecayType::Linear { rate: 0.0 });
     // At time=now, value should still be 1.0 (initial_value)
     let val = dm.calculate_value(Utc::now());
     assert!(
@@ -951,7 +971,11 @@ fn boundary_decay_negative_lambda() {
     let future = Utc::now() + ChronoDuration::hours(1);
     let val = dm.calculate_value(future);
     // exp(-(-0.01)*3600) = exp(36) which is huge
-    assert!(val > 1.0, "Negative lambda should cause growth, got {}", val);
+    assert!(
+        val > 1.0,
+        "Negative lambda should cause growth, got {}",
+        val
+    );
 }
 
 #[test]
@@ -979,7 +1003,11 @@ fn boundary_decay_very_large_half_life() {
 #[test]
 fn boundary_pert_all_same() {
     let d = DurationEstimate::new("Same", 100, 100, 100);
-    assert_eq!(d.pert_estimate().num_seconds(), 100, "O=E=P should give PERT=100");
+    assert_eq!(
+        d.pert_estimate().num_seconds(),
+        100,
+        "O=E=P should give PERT=100"
+    );
     assert_eq!(d.std_deviation().num_seconds(), 0, "No variance when O=P");
 }
 
@@ -992,7 +1020,11 @@ fn boundary_pert_very_large_values() {
     let d = DurationEstimate::new("Large", large, large, large);
     let pert = d.pert_estimate();
     let secs = pert.num_seconds();
-    assert!(secs > 0, "PERT must produce a positive value for large inputs, got {}", secs);
+    assert!(
+        secs > 0,
+        "PERT must produce a positive value for large inputs, got {}",
+        secs
+    );
     assert_eq!(secs, large, "O=E=P=large should give PERT=large");
 }
 
@@ -1127,6 +1159,9 @@ fn integration_full_workflow() {
     let tf2 = TimeFile::open(&path).unwrap();
     let qe2 = QueryEngine::new(&tf2);
     let stats2 = qe2.stats().unwrap();
-    assert_eq!(stats2.completed_count, 1, "Completed deadline should persist");
+    assert_eq!(
+        stats2.completed_count, 1,
+        "Completed deadline should persist"
+    );
     assert_eq!(tf2.entity_count(), 6, "All 6 entities should persist");
 }

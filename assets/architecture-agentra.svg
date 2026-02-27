@@ -1,87 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 500" width="980" height="500">
-  <rect width="980" height="500" fill="#1a1a2e" rx="12" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-label="AgenticTime architecture in Agentra Labs design system">
+  <defs>
+    <pattern id="dotgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#c8c5bb"/>
+    </pattern>
+    <style><![CDATA[
+      .mono { font-family:'IBM Plex Mono','JetBrains Mono',monospace; }
+      .ink { fill:#111111; }
+      .muted { fill:#6f6a5f; }
+      .accent { fill:#ea580c; }
+      .panel { fill:#f2f1ea; stroke:#111111; stroke-width:2; }
+      .card { fill:#fbfaf4; stroke:#111111; stroke-width:1.6; }
+      .card-accent { fill:#f6ece4; stroke:#111111; stroke-width:1.6; }
+      .card-dark { fill:#141414; stroke:#111111; stroke-width:1.6; }
+      .wire-soft { stroke:#8f897e; stroke-width:1.2; }
+      .wire-accent { stroke:#ea580c; stroke-width:1.8; }
+    ]]></style>
+  </defs>
 
-  <text x="490" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#e8e8e8">Agentra Ecosystem Architecture</text>
+  <rect width="1200" height="560" fill="#f2f1ea"/>
+  <rect width="1200" height="560" fill="url(#dotgrid)"/>
 
-  <!-- Agent -->
-  <rect x="370" y="55" width="240" height="45" rx="8" fill="#2a2a4a" stroke="#f57c00" stroke-width="2" />
-  <text x="490" y="83" text-anchor="middle" font-family="monospace" font-size="14" fill="#f57c00">AI Agent</text>
+  <line x1="26" y1="28" x2="1174" y2="28" stroke="#111111"/>
+  <text x="30" y="20" class="mono muted" font-size="12" letter-spacing="2.2">// SECTION: AGENTICTIME.ARCH</text>
+  <text x="1168" y="20" text-anchor="end" class="mono muted" font-size="12" letter-spacing="2">TICK:0101</text>
 
-  <!-- MCP Protocol line -->
-  <line x1="490" y1="100" x2="490" y2="130" stroke="#666" stroke-width="2" />
-  <text x="505" y="120" font-family="monospace" font-size="9" fill="#888">MCP</text>
+  <rect x="26" y="46" width="1148" height="492" class="panel"/>
 
-  <!-- Sisters row -->
-  <!-- Memory -->
-  <rect x="30" y="135" width="170" height="70" rx="8" fill="#1e3a1e" stroke="#4caf50" stroke-width="1.5" />
-  <text x="115" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#4caf50">AgenticMemory</text>
-  <text x="115" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#81c784">.amem</text>
+  <text x="600" y="84" text-anchor="middle" class="mono ink" font-size="24" letter-spacing="3" font-weight="700">AGENTICTIME ARCHITECTURE</text>
 
-  <!-- Codebase -->
-  <rect x="220" y="135" width="170" height="70" rx="8" fill="#1e2a3e" stroke="#4a9eff" stroke-width="1.5" />
-  <text x="305" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#4a9eff">AgenticCodebase</text>
-  <text x="305" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#8ab4f8">.acb</text>
+  <rect x="70" y="106" width="220" height="54" rx="10" class="card"/>
+  <text x="180" y="139" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Claude / Cursor</text>
 
-  <!-- Vision -->
-  <rect x="410" y="135" width="170" height="70" rx="8" fill="#3a2a1e" stroke="#ff9800" stroke-width="1.5" />
-  <text x="495" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#ff9800">AgenticVision</text>
-  <text x="495" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ffb74d">.avis</text>
+  <rect x="310" y="106" width="220" height="54" rx="10" class="card"/>
+  <text x="420" y="139" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">atime CLI</text>
 
-  <!-- Identity -->
-  <rect x="600" y="135" width="170" height="70" rx="8" fill="#2a1e3a" stroke="#bb86fc" stroke-width="1.5" />
-  <text x="685" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#bb86fc">AgenticIdentity</text>
-  <text x="685" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ce93d8">.aid</text>
+  <rect x="550" y="106" width="260" height="54" rx="10" class="card"/>
+  <text x="680" y="139" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">agentic-time-mcp</text>
 
-  <!-- Time (highlighted) -->
-  <rect x="790" y="135" width="170" height="70" rx="8" fill="#3a2a1a" stroke="#f57c00" stroke-width="2.5" />
-  <text x="875" y="165" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#f57c00">AgenticTime</text>
-  <text x="875" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#ffb74d">.atime</text>
+  <rect x="830" y="106" width="300" height="54" rx="10" class="card"/>
+  <text x="980" y="139" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Rust API / Python SDK</text>
 
-  <!-- Connection lines from agent to each sister -->
-  <line x1="400" y1="100" x2="115" y2="135" stroke="#666" stroke-width="1" />
-  <line x1="430" y1="100" x2="305" y2="135" stroke="#666" stroke-width="1" />
-  <line x1="490" y1="100" x2="495" y2="135" stroke="#666" stroke-width="1" />
-  <line x1="550" y1="100" x2="685" y2="135" stroke="#666" stroke-width="1" />
-  <line x1="580" y1="100" x2="875" y2="135" stroke="#666" stroke-width="1" />
+  <line x1="180" y1="160" x2="180" y2="184" class="wire-soft"/>
+  <line x1="420" y1="160" x2="420" y2="184" class="wire-soft"/>
+  <line x1="680" y1="160" x2="680" y2="184" class="wire-soft"/>
+  <line x1="980" y1="160" x2="980" y2="184" class="wire-soft"/>
 
-  <!-- Time 4-crate detail -->
-  <rect x="50" y="250" width="880" height="220" rx="10" fill="#0f0f1e" stroke="#333" stroke-width="1" />
-  <text x="490" y="275" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="#f57c00">AgenticTime Internal Architecture</text>
+  <rect x="70" y="184" width="1060" height="36" rx="7" class="card-dark"/>
+  <text x="600" y="207" text-anchor="middle" class="mono" fill="#f5f4ee" font-size="14" letter-spacing="2.2">MCP STDIO + CLI + FFI SURFACE</text>
 
-  <!-- MCP crate -->
-  <rect x="80" y="295" width="250" height="55" rx="6" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.5" />
-  <text x="205" y="318" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#4a9eff">agentic-time-mcp</text>
-  <text x="205" y="336" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ab4f8">19 tools | resources | prompts</text>
+  <line x1="600" y1="220" x2="600" y2="242" class="wire-soft"/>
 
-  <!-- Core crate -->
-  <rect x="365" y="295" width="250" height="55" rx="6" fill="#1a3a1a" stroke="#4caf50" stroke-width="1.5" />
-  <text x="490" y="318" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#4caf50">agentic-time-core</text>
-  <text x="490" y="336" text-anchor="middle" font-family="monospace" font-size="9" fill="#81c784">entities | format | decay math</text>
+  <rect x="70" y="242" width="1060" height="258" rx="12" class="card"/>
+  <text x="92" y="268" class="mono muted" font-size="14" letter-spacing="1.6">AGENTIC-TIME CORE (Rust)</text>
 
-  <!-- CLI crate -->
-  <rect x="80" y="370" width="180" height="45" rx="6" fill="#2a2a4a" stroke="#bb86fc" stroke-width="1" />
-  <text x="170" y="393" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#bb86fc">agentic-time-cli</text>
-  <text x="170" y="407" text-anchor="middle" font-family="monospace" font-size="9" fill="#ce93d8">atime command</text>
+  <rect x="92" y="284" width="250" height="68" rx="8" class="card-accent"/>
+  <text x="217" y="312" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Temporal Engine</text>
+  <text x="217" y="334" text-anchor="middle" class="mono muted" font-size="11">deadlines + schedules + sequences</text>
 
-  <!-- FFI crate -->
-  <rect x="285" y="370" width="180" height="45" rx="6" fill="#2a2a4a" stroke="#bb86fc" stroke-width="1" />
-  <text x="375" y="393" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#bb86fc">agentic-time-ffi</text>
-  <text x="375" y="407" text-anchor="middle" font-family="monospace" font-size="9" fill="#ce93d8">C bindings</text>
+  <rect x="362" y="284" width="250" height="68" rx="8" class="card-accent"/>
+  <text x="487" y="312" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Decay Models</text>
+  <text x="487" y="334" text-anchor="middle" class="mono muted" font-size="11">linear / exponential / half-life / step</text>
 
-  <!-- .atime file -->
-  <rect x="490" y="370" width="180" height="45" rx="6" fill="#3a2a1a" stroke="#f57c00" stroke-width="1.5" />
-  <text x="580" y="398" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#f57c00">project.atime</text>
+  <rect x="632" y="284" width="250" height="68" rx="8" class="card-accent"/>
+  <text x="757" y="312" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Duration Engine</text>
+  <text x="757" y="334" text-anchor="middle" class="mono muted" font-size="11">PERT estimation + confidence intervals</text>
 
-  <!-- Bindings -->
-  <rect x="695" y="295" width="100" height="35" rx="4" fill="#2a2a4a" stroke="#666" stroke-width="1" />
-  <text x="745" y="317" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">Python</text>
+  <rect x="902" y="284" width="206" height="68" rx="8" class="card-accent"/>
+  <text x="1005" y="312" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Entity Types</text>
+  <text x="1005" y="334" text-anchor="middle" class="mono muted" font-size="11">deadline / schedule / sequence / decay</text>
 
-  <rect x="810" y="295" width="100" height="35" rx="4" fill="#2a2a4a" stroke="#666" stroke-width="1" />
-  <text x="860" y="317" text-anchor="middle" font-family="monospace" font-size="10" fill="#aaa">npm/WASM</text>
+  <line x1="600" y1="352" x2="600" y2="372" class="wire-accent"/>
 
-  <!-- Arrows -->
-  <line x1="330" y1="320" x2="365" y2="320" stroke="#666" stroke-width="1.5" />
-  <polygon points="363,316 369,320 363,324" fill="#666" />
-  <line x1="490" y1="350" x2="490" y2="370" stroke="#666" stroke-width="1.5" />
-  <polygon points="486,368 490,374 494,368" fill="#666" />
+  <rect x="92" y="372" width="322" height="66" rx="8" class="card"/>
+  <text x="253" y="398" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Artifact Layer</text>
+  <text x="253" y="419" text-anchor="middle" class="mono muted" font-size="12">portable .atime binary temporal files</text>
+
+  <rect x="438" y="372" width="322" height="66" rx="8" class="card"/>
+  <text x="599" y="398" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Conflict Detection</text>
+  <text x="599" y="419" text-anchor="middle" class="mono muted" font-size="12">schedule overlap, deadline dependency</text>
+
+  <rect x="784" y="372" width="324" height="66" rx="8" class="card"/>
+  <text x="946" y="398" text-anchor="middle" class="mono ink" font-size="16" font-weight="700">Integration Surface</text>
+  <text x="946" y="419" text-anchor="middle" class="mono muted" font-size="12">AgenticMemory links + cross-agent workflows</text>
+
+  <rect x="92" y="452" width="1016" height="30" rx="6" class="card-dark"/>
+  <text x="600" y="472" text-anchor="middle" class="mono" fill="#f5f4ee" font-size="12" letter-spacing="1.2">5 entity types · 19 MCP tools · sub-millisecond operations · one binary temporal file</text>
+
+  <circle cx="1142" cy="524" r="5" class="accent"/>
 </svg>

@@ -23,12 +23,12 @@ assert_contains() {
 
 # README must contain install commands
 assert_contains 'curl -fsSL https://agentralabs.tech/install/time' README.md
-assert_contains 'npm install @agenticamem/agentic-time' README.md
+assert_contains 'npm install @agenticamem/time' README.md
 assert_contains 'pip install agentic-time' README.md
 
 # Installation doc must match
 assert_contains 'curl -fsSL https://agentralabs.tech/install/time' docs/public/installation.md
-assert_contains 'npm install @agenticamem/agentic-time' docs/public/installation.md
+assert_contains 'npm install @agenticamem/time' docs/public/installation.md
 
 # Quickstart must match
 assert_contains 'curl -fsSL https://agentralabs.tech/install/time' docs/public/quickstart.md

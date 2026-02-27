@@ -21,3 +21,4 @@ goals/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+python/tests/__pycache__/
