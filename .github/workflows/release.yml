@@ -31,6 +31,8 @@ jobs:
             artifact: agentic-time-darwin-aarch64
     steps:
       - uses: actions/checkout@v4
+      - name: Clone agentic-contracts (sibling dependency)
+        run: git clone --depth 1 https://github.com/agentralabs/agentic-contracts.git ../agentic-contracts
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -76,6 +78,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clone agentic-contracts (sibling dependency)
+        run: git clone --depth 1 https://github.com/agentralabs/agentic-contracts.git ../agentic-contracts
       - uses: dtolnay/rust-toolchain@stable
       - name: Publish crates in canonical order
         shell: bash
