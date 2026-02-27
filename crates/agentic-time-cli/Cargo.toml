@@ -5,6 +5,8 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "CLI for AgenticTime"
+keywords = ["ai", "agent", "time", "cli", "temporal"]
+categories = ["command-line-utilities", "date-and-time"]
 
 [[bin]]
 name = "atime"

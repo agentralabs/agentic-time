@@ -5,6 +5,8 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "FFI bindings for AgenticTime"
+keywords = ["ffi", "time", "ai", "agent", "bindings"]
+categories = ["api-bindings", "date-and-time"]
 
 [lib]
 crate-type = ["cdylib", "staticlib"]

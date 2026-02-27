@@ -5,6 +5,8 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "MCP server for AgenticTime"
+keywords = ["mcp", "llm", "time", "agent", "ai"]
+categories = ["development-tools", "date-and-time"]
 
 [[bin]]
 name = "agentic-time-mcp"

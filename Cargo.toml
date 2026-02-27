@@ -11,9 +11,10 @@ members = [
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
-license = "MIT OR Apache-2.0"
+license = "MIT"
 repository = "https://github.com/agentralabs/agentic-time"
-authors = ["Agentralabs"]
+homepage = "https://agentralabs.tech"
+authors = ["Agentra Labs <contact@agentralabs.tech>"]
 
 [workspace.dependencies]
 # Core
@@ -34,4 +35,4 @@ uuid = { version = "1.7", features = ["v4", "serde"] }
 clap = { version = "4.5", features = ["derive", "env"] }
 
 # Internal
-agentic-time = { path = "crates/agentic-time" }
+agentic-time = { path = "crates/agentic-time", version = "0.1.0" }
