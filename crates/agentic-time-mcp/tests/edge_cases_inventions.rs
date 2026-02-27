@@ -2236,7 +2236,7 @@ async fn test_identity_duration_receipt_verification() {
     // PERT: (1 + 4*2 + 10) / 6 = 19/6 ≈ 3
     let pert = val["pert_estimate_minutes"].as_i64().unwrap();
     assert!(
-        pert >= 2 && pert <= 5,
+        (2..=5).contains(&pert),
         "PERT for receipt verification should be ~3, got {}",
         pert
     );
@@ -2400,7 +2400,7 @@ async fn test_vision_duration_ocr_processing() {
     // PERT: (2 + 4*5 + 15) / 6 = 37/6 ≈ 6
     let pert = val["pert_estimate_minutes"].as_i64().unwrap();
     assert!(
-        pert >= 5 && pert <= 8,
+        (5..=8).contains(&pert),
         "PERT for OCR should be ~6, got {}",
         pert
     );
@@ -2551,7 +2551,7 @@ async fn test_codebase_duration_graph_traversal() {
     // PERT: (5 + 4*15 + 60) / 6 = 125/6 ≈ 20
     let pert = val["pert_estimate_minutes"].as_i64().unwrap();
     assert!(
-        pert >= 18 && pert <= 22,
+        (18..=22).contains(&pert),
         "PERT for graph traversal should be ~20, got {}",
         pert
     );
