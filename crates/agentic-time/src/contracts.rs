@@ -1,4 +1,4 @@
-//! Agentic-contracts trait implementations for AgenticTime.
+//! Agentic-sdk trait implementations for AgenticTime.
 //!
 //! Implements: Sister, Queryable, FileFormatReader, FileFormatWriter
 //! Does NOT implement: SessionManagement (stateless per-project),
@@ -8,7 +8,7 @@
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use agentic_contracts::prelude::*;
+use agentic_sdk::prelude::*;
 use chrono::Utc;
 
 use crate::error::TimeError;

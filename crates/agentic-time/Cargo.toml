@@ -9,8 +9,8 @@ keywords = ["ai", "agents", "time", "temporal", "scheduling"]
 categories = ["data-structures", "date-and-time"]
 
 [dependencies]
-# Contracts (shared sister traits)
-agentic-contracts = { workspace = true }
+# SDK (shared sister traits)
+agentic-sdk = { workspace = true }
 
 chrono = { workspace = true }
 blake3 = { workspace = true }
