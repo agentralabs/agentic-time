@@ -503,7 +503,7 @@ fn stress_1000_deadlines_add_and_query() {
         overdue.len()
     );
     assert!(
-        overdue.len() > 0,
+        !overdue.is_empty(),
         "Should have some overdue deadlines from negative offsets"
     );
 
@@ -767,7 +767,7 @@ fn stress_decay_batch_evaluation() {
     let mut tf = TimeFile::create(&path).unwrap();
 
     // Mix of decay types
-    let decay_types = vec![
+    let decay_types = [
         DecayType::Linear { rate: 0.001 },
         DecayType::Exponential { lambda: 0.01 },
         DecayType::HalfLife {
@@ -839,7 +839,7 @@ fn stress_available_slots_50_schedules() {
     );
 
     assert!(
-        slots.len() > 0,
+        !slots.is_empty(),
         "Should find available slots between meetings"
     );
 }
@@ -1067,8 +1067,8 @@ fn boundary_header_round_trip() {
         index_offset: 0xFFFFFFFFFFFFFFFF,
         deadline_index_offset: 12345678,
         decay_index_offset: 87654321,
-        created_at: 1700000000_000000,
-        modified_at: 1700000001_000000,
+        created_at: 1_700_000_000_000_000,
+        modified_at: 1_700_000_001_000_000,
         checksum: [0xAB; 32],
     };
 
@@ -1085,8 +1085,8 @@ fn boundary_header_round_trip() {
     assert_eq!(read_back.index_offset, 0xFFFFFFFFFFFFFFFF);
     assert_eq!(read_back.deadline_index_offset, 12345678);
     assert_eq!(read_back.decay_index_offset, 87654321);
-    assert_eq!(read_back.created_at, 1700000000_000000);
-    assert_eq!(read_back.modified_at, 1700000001_000000);
+    assert_eq!(read_back.created_at, 1_700_000_000_000_000);
+    assert_eq!(read_back.modified_at, 1_700_000_001_000_000);
     assert_eq!(read_back.checksum, [0xAB; 32]);
 }
 
