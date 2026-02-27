@@ -13,9 +13,7 @@ use chrono::Utc;
 
 use crate::error::TimeError;
 use crate::file_format::{self, FileHeader, TimeFile};
-use crate::{
-    Deadline, DecayModel, DurationEstimate, Schedule, Sequence, TemporalId, WriteEngine,
-};
+use crate::{Deadline, DecayModel, DurationEstimate, Schedule, Sequence, TemporalId, WriteEngine};
 
 // ═══════════════════════════════════════════════════════════════════
 // ERROR BRIDGE
@@ -30,10 +28,9 @@ impl From<TimeError> for SisterError {
             TimeError::InvalidRange { start, end } => {
                 SisterError::invalid_input(format!("Invalid time range: {start} to {end}"))
             }
-            TimeError::DeadlinePassed(msg) => SisterError::new(
-                ErrorCode::InvalidState,
-                format!("Deadline passed: {msg}"),
-            ),
+            TimeError::DeadlinePassed(msg) => {
+                SisterError::new(ErrorCode::InvalidState, format!("Deadline passed: {msg}"))
+            }
             TimeError::ScheduleConflict(a, b) => SisterError::new(
                 ErrorCode::InvalidState,
                 format!("Schedule conflict: {a} overlaps with {b}"),
@@ -52,10 +49,9 @@ impl From<TimeError> for SisterError {
                 ErrorCode::VersionMismatch,
                 format!("File format error: {msg}"),
             ),
-            TimeError::Io(err) => SisterError::new(
-                ErrorCode::StorageError,
-                format!("IO error: {err}"),
-            ),
+            TimeError::Io(err) => {
+                SisterError::new(ErrorCode::StorageError, format!("IO error: {err}"))
+            }
             TimeError::Serialization(err) => SisterError::new(
                 ErrorCode::StorageError,
                 format!("Serialization error: {err}"),
@@ -160,8 +156,14 @@ impl Sister for TimeSister {
 
     fn capabilities(&self) -> Vec<Capability> {
         vec![
-            Capability::new("time_deadline_add", "Add a deadline with urgency and consequences"),
-            Capability::new("time_deadline_query", "Query deadlines by status or due date"),
+            Capability::new(
+                "time_deadline_add",
+                "Add a deadline with urgency and consequences",
+            ),
+            Capability::new(
+                "time_deadline_query",
+                "Query deadlines by status or due date",
+            ),
             Capability::new("time_schedule_add", "Add a schedule with recurrence"),
             Capability::new("time_schedule_query", "Query schedules and find conflicts"),
             Capability::new("time_sequence_add", "Add an ordered sequence of steps"),
@@ -352,14 +354,10 @@ impl Queryable for TimeSister {
                     }
                 }
 
-                scored.sort_by(|a, b| {
-                    b.0.partial_cmp(&a.0)
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                });
+                scored.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
                 let total = scored.len();
                 scored.truncate(limit);
-                let results: Vec<serde_json::Value> =
-                    scored.into_iter().map(|(_, v)| v).collect();
+                let results: Vec<serde_json::Value> = scored.into_iter().map(|(_, v)| v).collect();
 
                 Ok(QueryResult::new(query, results, start.elapsed())
                     .with_pagination(total, total > limit))
@@ -415,8 +413,7 @@ impl Queryable for TimeSister {
                 entries.sort_by(|a, b| b.0.cmp(&a.0));
                 let total = entries.len();
                 entries.truncate(limit);
-                let results: Vec<serde_json::Value> =
-                    entries.into_iter().map(|(_, v)| v).collect();
+                let results: Vec<serde_json::Value> = entries.into_iter().map(|(_, v)| v).collect();
 
                 Ok(QueryResult::new(query, results, start.elapsed())
                     .with_pagination(total, total > limit))
@@ -516,11 +513,9 @@ impl Queryable for TimeSister {
         vec![
             QueryTypeInfo::new("list", "List all temporal entities with pagination")
                 .optional(vec!["entity_type"]),
-            QueryTypeInfo::new("search", "Search entities by label text")
-                .required(vec!["text"]),
+            QueryTypeInfo::new("search", "Search entities by label text").required(vec!["text"]),
             QueryTypeInfo::new("recent", "Get most recently created entities"),
-            QueryTypeInfo::new("get", "Get a specific entity by ID")
-                .required(vec!["id"]),
+            QueryTypeInfo::new("get", "Get a specific entity by ID").required(vec!["id"]),
         ]
     }
 }
@@ -557,9 +552,7 @@ impl FileFormatReader for TimeSister {
         )
         .unwrap_or_else(|| Utc::now());
 
-        let file_size = std::fs::metadata(path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
 
         Ok(FileInfo {
             sister_type: SisterType::Time,
@@ -622,10 +615,7 @@ fn word_overlap_score(query: &str, text: &str) -> f64 {
     let query_words: std::collections::HashSet<String> = query
         .to_lowercase()
         .split_whitespace()
-        .map(|w| {
-            w.trim_matches(|c: char| !c.is_alphanumeric())
-                .to_string()
-        })
+        .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_string())
         .filter(|w| !w.is_empty())
         .collect();
 
@@ -666,10 +656,7 @@ mod tests {
 
     /// Add a test deadline to the sister.
     fn add_test_deadline(sister: &mut TimeSister, label: &str) -> TemporalId {
-        let deadline = Deadline::new(
-            label.to_string(),
-            Utc::now() + chrono::Duration::hours(24),
-        );
+        let deadline = Deadline::new(label.to_string(), Utc::now() + chrono::Duration::hours(24));
         let id = deadline.id;
         sister
             .engine
@@ -736,10 +723,7 @@ mod tests {
 
         let result = sister.query(Query::get(id.to_string())).unwrap();
         assert_eq!(result.results.len(), 1);
-        assert_eq!(
-            result.results[0]["id"].as_str().unwrap(),
-            id.to_string()
-        );
+        assert_eq!(result.results[0]["id"].as_str().unwrap(), id.to_string());
     }
 
     #[test]
