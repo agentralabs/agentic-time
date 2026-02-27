@@ -544,13 +544,13 @@ impl FileFormatReader for TimeSister {
             (header.created_at / 1_000_000) as i64,
             ((header.created_at % 1_000_000) * 1000) as u32,
         )
-        .unwrap_or_else(|| Utc::now());
+        .unwrap_or_else(Utc::now);
 
         let updated_at = chrono::DateTime::from_timestamp(
             (header.modified_at / 1_000_000) as i64,
             ((header.modified_at % 1_000_000) * 1000) as u32,
         )
-        .unwrap_or_else(|| Utc::now());
+        .unwrap_or_else(Utc::now);
 
         let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
 
@@ -706,7 +706,7 @@ mod tests {
         add_test_deadline(&mut sister, "Update deployment pipeline");
 
         let result = sister.query(Query::search("deploy")).unwrap();
-        assert!(result.results.len() >= 1);
+        assert!(!result.results.is_empty());
         assert!(result.results.iter().any(|r| {
             r.get("label")
                 .and_then(|l| l.as_str())
