@@ -125,6 +125,31 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 | `time_loop_detect` | Detect time loop patterns from repeated similar events |
 | `time_wormhole_create` | Connect two distant points in time with a causal wormhole |
 
+### Compact Facade Tools (v0.3+)
+
+Use these to keep MCP tool surfaces small while preserving backward compatibility:
+
+| Tool | Description |
+|------|-------------|
+| `time_deadline` | Unified deadline operations via `operation` |
+| `time_schedule` | Unified schedule operations via `operation` |
+| `time_sequence` | Unified sequence operations via `operation` |
+| `time_decay` | Unified decay operations via `operation` |
+| `time_duration` | Unified duration operations via `operation` |
+| `time_core` | Unified core time operations via `operation` |
+| `time_workspace` | Unified workspace/session operations via `operation` |
+| `time_exploration` | Unified exploration invention operations via `operation` |
+| `time_protection` | Unified protection invention operations via `operation` |
+| `time_management` | Unified management invention operations via `operation` |
+
+Compact list mode:
+
+```bash
+export ATIME_MCP_TOOL_SURFACE=compact
+```
+
+In compact mode, `tools/list` returns only the 10 facade tools above, while all legacy tool names remain callable.
+
 ## MCP Resources (atime://)
 
 | Resource | Description |

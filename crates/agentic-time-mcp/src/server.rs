@@ -117,6 +117,219 @@ fn parse_bool(v: &str) -> bool {
     )
 }
 
+fn mcp_tool_surface_is_compact() -> bool {
+    env_with_fallback("ATIME_MCP_TOOL_SURFACE", "MCP_TOOL_SURFACE")
+        .map(|v| v.eq_ignore_ascii_case("compact"))
+        .unwrap_or(false)
+}
+
+fn compact_input_schema(ops: &[String], description: &str) -> Value {
+    json!({
+        "type": "object",
+        "required": ["operation"],
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ops,
+                "description": description
+            },
+            "params": {
+                "type": "object",
+                "description": "Arguments for the selected operation"
+            }
+        }
+    })
+}
+
+fn ops_from_prefix(defs: &[tools::ToolDefinition], prefix: &str) -> Vec<String> {
+    defs.iter()
+        .filter_map(|d| d.name.strip_prefix(prefix).map(str::to_string))
+        .collect()
+}
+
+fn ops_from_time_prefix(defs: &[tools::ToolDefinition]) -> Vec<String> {
+    defs.iter()
+        .filter_map(|d| d.name.strip_prefix("time_").map(str::to_string))
+        .collect()
+}
+
+fn compact_tool_list() -> Vec<Value> {
+    vec![
+        json!({
+            "name": "time_deadline",
+            "description": "Compact deadline facade",
+            "inputSchema": compact_input_schema(&ops_from_prefix(tools::TOOLS, "time_deadline_"), "Deadline operation")
+        }),
+        json!({
+            "name": "time_schedule",
+            "description": "Compact schedule facade",
+            "inputSchema": compact_input_schema(&ops_from_prefix(tools::TOOLS, "time_schedule_"), "Schedule operation")
+        }),
+        json!({
+            "name": "time_sequence",
+            "description": "Compact sequence facade",
+            "inputSchema": compact_input_schema(&ops_from_prefix(tools::TOOLS, "time_sequence_"), "Sequence operation")
+        }),
+        json!({
+            "name": "time_decay",
+            "description": "Compact decay facade",
+            "inputSchema": compact_input_schema(&ops_from_prefix(tools::TOOLS, "time_decay_"), "Decay operation")
+        }),
+        json!({
+            "name": "time_duration",
+            "description": "Compact duration facade",
+            "inputSchema": compact_input_schema(&ops_from_prefix(tools::TOOLS, "time_duration_"), "Duration operation")
+        }),
+        json!({
+            "name": "time_core",
+            "description": "Compact core temporal facade",
+            "inputSchema": compact_input_schema(
+                &vec![
+                    "stats".to_string(),
+                    "refresh".to_string(),
+                    "ground".to_string(),
+                    "evidence".to_string(),
+                    "suggest".to_string(),
+                ],
+                "Core temporal operation",
+            )
+        }),
+        json!({
+            "name": "time_workspace",
+            "description": "Compact workspace/session facade",
+            "inputSchema": compact_input_schema(
+                &vec![
+                    "workspace_create".to_string(),
+                    "workspace_add".to_string(),
+                    "workspace_list".to_string(),
+                    "workspace_query".to_string(),
+                    "workspace_compare".to_string(),
+                    "workspace_xref".to_string(),
+                    "session_start".to_string(),
+                    "session_end".to_string(),
+                    "session_resume".to_string(),
+                ],
+                "Workspace/session operation",
+            )
+        }),
+        json!({
+            "name": "time_exploration",
+            "description": "Compact exploration inventions facade",
+            "inputSchema": compact_input_schema(&ops_from_time_prefix(invention_exploration::TOOL_DEFS), "Exploration operation")
+        }),
+        json!({
+            "name": "time_protection",
+            "description": "Compact protection inventions facade",
+            "inputSchema": compact_input_schema(&ops_from_time_prefix(invention_protection::TOOL_DEFS), "Protection operation")
+        }),
+        json!({
+            "name": "time_management",
+            "description": "Compact management inventions facade",
+            "inputSchema": compact_input_schema(&ops_from_time_prefix(invention_management::TOOL_DEFS), "Management operation")
+        }),
+    ]
+}
+
+fn decode_compact_operation(args: Value) -> Result<(String, Value), String> {
+    let obj = args
+        .as_object()
+        .ok_or_else(|| "arguments must be an object".to_string())?;
+    let operation = obj
+        .get("operation")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "'operation' is required".to_string())?
+        .to_string();
+
+    if let Some(params) = obj.get("params") {
+        return Ok((operation, params.clone()));
+    }
+
+    let mut passthrough = obj.clone();
+    passthrough.remove("operation");
+    Ok((operation, Value::Object(passthrough)))
+}
+
+fn tool_in_defs(defs: &[tools::ToolDefinition], tool_name: &str) -> bool {
+    defs.iter().any(|d| d.name == tool_name)
+}
+
+fn resolve_compact_tool(group: &str, operation: &str) -> Option<String> {
+    let with_prefix = |prefix: &str| {
+        if operation.starts_with(prefix) {
+            operation.to_string()
+        } else {
+            format!("{prefix}{operation}")
+        }
+    };
+
+    let candidate = match group {
+        "time_deadline" => with_prefix("time_deadline_"),
+        "time_schedule" => with_prefix("time_schedule_"),
+        "time_sequence" => with_prefix("time_sequence_"),
+        "time_decay" => with_prefix("time_decay_"),
+        "time_duration" => with_prefix("time_duration_"),
+        "time_core" => with_prefix("time_"),
+        "time_workspace" => match operation {
+            "workspace_create" => "time_workspace_create".to_string(),
+            "workspace_add" => "time_workspace_add".to_string(),
+            "workspace_list" => "time_workspace_list".to_string(),
+            "workspace_query" => "time_workspace_query".to_string(),
+            "workspace_compare" => "time_workspace_compare".to_string(),
+            "workspace_xref" => "time_workspace_xref".to_string(),
+            "session_start" => "session_start".to_string(),
+            "session_end" => "session_end".to_string(),
+            "session_resume" => "time_session_resume".to_string(),
+            _ => return None,
+        },
+        "time_exploration" | "time_protection" | "time_management" => {
+            if operation.starts_with("time_") {
+                operation.to_string()
+            } else {
+                format!("time_{operation}")
+            }
+        }
+        _ => return None,
+    };
+
+    let valid = match group {
+        "time_deadline" | "time_schedule" | "time_sequence" | "time_decay" | "time_duration"
+        | "time_core" | "time_workspace" => tool_in_defs(tools::TOOLS, &candidate),
+        "time_exploration" => tool_in_defs(invention_exploration::TOOL_DEFS, &candidate),
+        "time_protection" => tool_in_defs(invention_protection::TOOL_DEFS, &candidate),
+        "time_management" => tool_in_defs(invention_management::TOOL_DEFS, &candidate),
+        _ => false,
+    };
+
+    if valid {
+        Some(candidate)
+    } else {
+        None
+    }
+}
+
+fn normalize_compact_tool_call(tool_name: &str, args: Value) -> Result<(String, Value), String> {
+    if !matches!(
+        tool_name,
+        "time_deadline"
+            | "time_schedule"
+            | "time_sequence"
+            | "time_decay"
+            | "time_duration"
+            | "time_core"
+            | "time_workspace"
+            | "time_exploration"
+            | "time_protection"
+            | "time_management"
+    ) {
+        return Ok((tool_name.to_string(), args));
+    }
+
+    let (operation, params) = decode_compact_operation(args)?;
+    let resolved = resolve_compact_tool(tool_name, &operation)
+        .ok_or_else(|| format!("Unknown {tool_name} operation: {operation}"))?;
+    Ok((resolved, params))
+}
+
 /// Check AGENTIC_TOKEN for server-mode authentication.
 fn check_server_auth() -> Result<(), Box<dyn std::error::Error>> {
     let is_server_mode = std::env::var("AGENTRA_RUNTIME_MODE")
@@ -249,19 +462,23 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
             }
             "notifications/initialized" => continue, // No response needed
             "tools/list" => {
-                let tool_list: Vec<Value> = tools::TOOLS
-                    .iter()
-                    .chain(invention_exploration::TOOL_DEFS.iter())
-                    .chain(invention_protection::TOOL_DEFS.iter())
-                    .chain(invention_management::TOOL_DEFS.iter())
-                    .map(|t| {
-                        json!({
-                            "name": t.name,
-                            "description": t.description,
-                            "inputSchema": serde_json::from_str::<Value>(t.input_schema).unwrap_or(json!({}))
+                let tool_list: Vec<Value> = if mcp_tool_surface_is_compact() {
+                    compact_tool_list()
+                } else {
+                    tools::TOOLS
+                        .iter()
+                        .chain(invention_exploration::TOOL_DEFS.iter())
+                        .chain(invention_protection::TOOL_DEFS.iter())
+                        .chain(invention_management::TOOL_DEFS.iter())
+                        .map(|t| {
+                            json!({
+                                "name": t.name,
+                                "description": t.description,
+                                "inputSchema": serde_json::from_str::<Value>(t.input_schema).unwrap_or(json!({}))
+                            })
                         })
-                    })
-                    .collect();
+                        .collect()
+                };
 
                 json!({
                     "jsonrpc": "2.0",
@@ -271,24 +488,44 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
             }
             "tools/call" => {
                 let params = request.get("params").cloned().unwrap_or(json!({}));
-                let tool_name = params.get("name").and_then(|n| n.as_str()).unwrap_or("");
-                let args = params.get("arguments").cloned().unwrap_or(json!({}));
+                let requested_tool_name = params.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                let raw_args = params.get("arguments").cloned().unwrap_or(json!({}));
+                let (tool_name, args) =
+                    match normalize_compact_tool_call(requested_tool_name, raw_args) {
+                        Ok(mapped) => mapped,
+                        Err(e) => {
+                            let err = format!("Error: {}", e);
+                            let response = json!({
+                                "jsonrpc": "2.0",
+                                "id": id,
+                                "result": {
+                                    "content": [{
+                                        "type": "text",
+                                        "text": err
+                                    }],
+                                    "isError": true
+                                }
+                            });
+                            transport.write_message(&response.to_string())?;
+                            continue;
+                        }
+                    };
 
                 // Try invention modules first, then fall back to core tools
                 let result = if let Some(r) =
-                    invention_exploration::try_handle(tool_name, args.clone(), &mut engine)
+                    invention_exploration::try_handle(&tool_name, args.clone(), &mut engine)
                 {
                     r
                 } else if let Some(r) =
-                    invention_protection::try_handle(tool_name, args.clone(), &mut engine)
+                    invention_protection::try_handle(&tool_name, args.clone(), &mut engine)
                 {
                     r
                 } else if let Some(r) =
-                    invention_management::try_handle(tool_name, args.clone(), &mut engine)
+                    invention_management::try_handle(&tool_name, args.clone(), &mut engine)
                 {
                     r
                 } else {
-                    tools::handle_tool_call(tool_name, args, &mut engine).await
+                    tools::handle_tool_call(&tool_name, args, &mut engine).await
                 };
 
                 match result {
@@ -413,4 +650,73 @@ fn dirs_home() -> PathBuf {
     std::env::var("HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("."))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn compact_tool_list_has_expected_surface() {
+        let defs = compact_tool_list();
+        let names: Vec<&str> = defs
+            .iter()
+            .filter_map(|d| d.get("name").and_then(|n| n.as_str()))
+            .collect();
+        assert_eq!(defs.len(), 10);
+        assert!(names.contains(&"time_deadline"));
+        assert!(names.contains(&"time_schedule"));
+        assert!(names.contains(&"time_sequence"));
+        assert!(names.contains(&"time_decay"));
+        assert!(names.contains(&"time_duration"));
+        assert!(names.contains(&"time_core"));
+        assert!(names.contains(&"time_workspace"));
+        assert!(names.contains(&"time_exploration"));
+        assert!(names.contains(&"time_protection"));
+        assert!(names.contains(&"time_management"));
+    }
+
+    #[test]
+    fn compact_deadline_operation_routes_to_legacy_name() {
+        let (name, args) = normalize_compact_tool_call(
+            "time_deadline",
+            json!({
+                "operation": "add",
+                "params": {
+                    "label": "Ship v1",
+                    "due_at": "2030-01-01T00:00:00Z"
+                }
+            }),
+        )
+        .expect("deadline compact should map");
+        assert_eq!(name, "time_deadline_add");
+        assert_eq!(args["label"], "Ship v1");
+    }
+
+    #[test]
+    fn compact_workspace_operation_routes_to_legacy_name() {
+        let (name, args) = normalize_compact_tool_call(
+            "time_workspace",
+            json!({
+                "operation": "session_resume",
+                "params": { "limit": 3 }
+            }),
+        )
+        .expect("workspace compact should map");
+        assert_eq!(name, "time_session_resume");
+        assert_eq!(args["limit"], 3);
+    }
+
+    #[test]
+    fn compact_unknown_operation_errors() {
+        let err = normalize_compact_tool_call(
+            "time_core",
+            json!({
+                "operation": "does_not_exist"
+            }),
+        )
+        .expect_err("unknown operation should fail");
+        assert!(err.contains("Unknown time_core operation"));
+    }
 }
