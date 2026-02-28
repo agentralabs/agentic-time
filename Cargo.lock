@@ -42,6 +42,7 @@ dependencies = [
  "agentic-time",
  "chrono",
  "clap",
+ "serde",
  "serde_json",
  "tempfile",
  "tracing",

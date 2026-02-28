@@ -19,7 +19,8 @@ pub const TOOL_DEFS: &[ToolDefinition] = &[
     // ── Temporal Immune System (4 tools) ────────────────────────────────
     ToolDefinition {
         name: "time_anomaly_scan",
-        description: "Scan the temporal graph for anomalies using z-score, IQR, and trend deviation analysis",
+        description:
+            "Scan the temporal graph for anomalies using z-score, IQR, and trend deviation analysis",
         input_schema: r#"{"type":"object","properties":{"scan_depth":{"type":"string","enum":["quick","standard","deep"],"default":"standard","description":"How thorough the scan should be"},"anomaly_types":{"type":"array","items":{"type":"string","enum":["dependency_cycle","capacity_overflow","causality_violation","entanglement_conflict","gravity_conflict","impossible_deadline"]},"description":"Specific anomaly types to scan for (default: all)"},"z_score_threshold":{"type":"number","default":2.0,"description":"Z-score threshold for statistical anomaly detection"},"include_recommendations":{"type":"boolean","default":true,"description":"Include remediation recommendations"}}}"#,
     },
     ToolDefinition {
@@ -29,7 +30,8 @@ pub const TOOL_DEFS: &[ToolDefinition] = &[
     },
     ToolDefinition {
         name: "time_anomaly_heal",
-        description: "Auto-heal detected anomalies using statistical correction and constraint propagation",
+        description:
+            "Auto-heal detected anomalies using statistical correction and constraint propagation",
         input_schema: r#"{"type":"object","properties":{"anomaly_ids":{"type":"array","items":{"type":"string"},"description":"Anomaly IDs to heal (default: all healable)"},"strategy":{"type":"string","enum":["conservative","balanced","aggressive"],"default":"balanced","description":"Healing aggressiveness"},"dry_run":{"type":"boolean","default":true,"description":"Preview changes without applying"}}}"#,
     },
     ToolDefinition {
@@ -45,18 +47,21 @@ pub const TOOL_DEFS: &[ToolDefinition] = &[
     },
     ToolDefinition {
         name: "time_decay_analyze",
-        description: "Analyze decay patterns across all models with trend detection and half-life estimation",
+        description:
+            "Analyze decay patterns across all models with trend detection and half-life estimation",
         input_schema: r#"{"type":"object","properties":{"group_by":{"type":"string","enum":["type","severity","age","tag"],"default":"severity","description":"How to group decay models for analysis"},"include_projections":{"type":"boolean","default":true,"description":"Include future value projections"},"projection_hours":{"type":"number","default":168,"description":"Hours ahead to project"}}}"#,
     },
     ToolDefinition {
         name: "time_decay_predict",
-        description: "Predict future decay trajectories with confidence intervals and critical thresholds",
+        description:
+            "Predict future decay trajectories with confidence intervals and critical thresholds",
         input_schema: r#"{"type":"object","properties":{"id":{"type":"string","description":"Decay model ID to predict (omit for all)"},"horizon_hours":{"type":"number","default":168,"description":"Prediction horizon in hours"},"checkpoints":{"type":"array","items":{"type":"number"},"description":"Specific hours to compute values at"},"critical_threshold":{"type":"number","default":0.2,"description":"Value below which the decay is critical"}}}"#,
     },
     // ── Time Dilation (3 tools) ─────────────────────────────────────────
     ToolDefinition {
         name: "time_dilation_analyze",
-        description: "Analyze subjective time perception based on schedule density and deadline pressure",
+        description:
+            "Analyze subjective time perception based on schedule density and deadline pressure",
         input_schema: r#"{"type":"object","properties":{"period_hours":{"type":"number","default":24,"description":"Analysis period in hours"},"include_energy_model":{"type":"boolean","default":true,"description":"Include energy curve analysis"},"include_recommendations":{"type":"boolean","default":true,"description":"Include optimization recommendations"}}}"#,
     },
     ToolDefinition {
@@ -66,18 +71,21 @@ pub const TOOL_DEFS: &[ToolDefinition] = &[
     },
     ToolDefinition {
         name: "time_dilation_report",
-        description: "Generate comprehensive dilation report with productivity metrics and trend analysis",
+        description:
+            "Generate comprehensive dilation report with productivity metrics and trend analysis",
         input_schema: r#"{"type":"object","properties":{"days":{"type":"integer","default":7,"description":"Number of days for the report"},"format":{"type":"string","enum":["summary","detailed","executive"],"default":"detailed","description":"Report detail level"}}}"#,
     },
     // ── Temporal Jumps & Anchors (3 tools) ──────────────────────────────
     ToolDefinition {
         name: "time_jump_create",
-        description: "Create a temporal jump to a specific point in the timeline with state reconstruction",
+        description:
+            "Create a temporal jump to a specific point in the timeline with state reconstruction",
         input_schema: r#"{"type":"object","properties":{"destination":{"type":"string","format":"date-time","description":"The point in time to jump to"},"purpose":{"type":"string","description":"Why this jump is being made"},"include_hindsight":{"type":"boolean","default":true,"description":"Include hindsight analysis of what was unknown"},"reconstruct_state":{"type":"boolean","default":true,"description":"Reconstruct entity states at destination time"}},"required":["destination"]}"#,
     },
     ToolDefinition {
         name: "time_anchor_create",
-        description: "Create a temporal anchor capturing current state as a comprehensive savepoint",
+        description:
+            "Create a temporal anchor capturing current state as a comprehensive savepoint",
         input_schema: r#"{"type":"object","properties":{"name":{"type":"string","description":"Name for this anchor"},"reason":{"type":"string","description":"Why this anchor is being created"},"expires_in_hours":{"type":"number","description":"Auto-expire after N hours (0 = never)"},"tags":{"type":"array","items":{"type":"string"},"description":"Tags for organization"},"include_checksums":{"type":"boolean","default":true,"description":"Compute integrity checksums"}},"required":["name","reason"]}"#,
     },
     ToolDefinition {
@@ -396,8 +404,7 @@ fn analyze_schedule_anomalies(schedules: &[agentic_time::Schedule]) -> Vec<Value
             if count > 3 {
                 let z = z_score(count as f64, density_mean, density_std);
                 if z > 1.5 {
-                    let ts =
-                        DateTime::from_timestamp(hour * 3600, 0).unwrap_or_else(|| now);
+                    let ts = DateTime::from_timestamp(hour * 3600, 0).unwrap_or_else(|| now);
                     anomalies.push(json!({
                         "type": "density_spike",
                         "severity": (sigmoid(z - 1.5) * 100.0).round() / 100.0,
@@ -462,9 +469,11 @@ fn analyze_decay_anomalies(decays: &[agentic_time::DecayModel]) -> Vec<Value> {
 
         // Statistical outlier in decay rate
         let z = z_score(ratios[i], ratio_mean, ratio_std);
-        if z.abs() > 2.0 && !anomalies.iter().any(|a|
-            a.get("entity_id").and_then(|v| v.as_str()) == Some(&d.id.to_string())
-        ) {
+        if z.abs() > 2.0
+            && !anomalies
+                .iter()
+                .any(|a| a.get("entity_id").and_then(|v| v.as_str()) == Some(&d.id.to_string()))
+        {
             anomalies.push(json!({
                 "type": "decay_rate_outlier",
                 "entity_id": d.id.to_string(),
@@ -517,8 +526,8 @@ fn project_decay(
     for &hours in &check_hours {
         let t_secs = hours * 3600.0;
         let future_t = elapsed_secs + t_secs;
-        let projected = exponential_decay_at(model.initial_value, lambda, future_t)
-            .max(model.floor);
+        let projected =
+            exponential_decay_at(model.initial_value, lambda, future_t).max(model.floor);
 
         // Confidence interval: wider as we project further
         let uncertainty = (t_secs / (horizon_hours * 3600.0)).sqrt() * 0.2;
@@ -747,7 +756,12 @@ fn handle_anomaly_scan(
                 "impact": "Restores system integrity",
             }));
         }
-        if deadlines.iter().filter(|d| d.status == agentic_time::DeadlineStatus::Overdue).count() > 2 {
+        if deadlines
+            .iter()
+            .filter(|d| d.status == agentic_time::DeadlineStatus::Overdue)
+            .count()
+            > 2
+        {
             recommendations.push(json!({
                 "priority": "medium",
                 "action": "Multiple overdue deadlines — triage and either extend or cancel",
@@ -755,10 +769,10 @@ fn handle_anomaly_scan(
             }));
         }
 
-        result.as_object_mut().unwrap().insert(
-            "recommendations".to_string(),
-            json!(recommendations),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("recommendations".to_string(), json!(recommendations));
     }
 
     Ok(result)
@@ -908,7 +922,10 @@ fn handle_anomaly_heal(
     let healed_count = if dry_run {
         0
     } else {
-        heal_actions.iter().filter(|a| a.get("applied").and_then(|v| v.as_bool()).unwrap_or(false)).count()
+        heal_actions
+            .iter()
+            .filter(|a| a.get("applied").and_then(|v| v.as_bool()).unwrap_or(false))
+            .count()
     };
 
     Ok(json!({
@@ -957,8 +974,11 @@ fn handle_immune_status(
         let seed = string_hash_f64("immune_history");
         let mut history = Vec::new();
         for i in 0..7 {
-            let past_health = (status.health_score + pseudo_random(seed, i) * 0.2 - 0.1).clamp(0.0, 1.0);
-            let past_anomalies = (status.anomaly_count as f64 * (1.0 + pseudo_random(seed, 10 + i) * 0.5 - 0.25)) as u32;
+            let past_health =
+                (status.health_score + pseudo_random(seed, i) * 0.2 - 0.1).clamp(0.0, 1.0);
+            let past_anomalies = (status.anomaly_count as f64
+                * (1.0 + pseudo_random(seed, 10 + i) * 0.5 - 0.25))
+                as u32;
             history.push(json!({
                 "timestamp": (now - ChronoDuration::days(6 - i as i64)).to_rfc3339(),
                 "health_score": (past_health * 100.0).round() / 100.0,
@@ -1025,10 +1045,10 @@ fn handle_immune_status(
             }));
         }
 
-        result.as_object_mut().unwrap().insert(
-            "vulnerabilities".to_string(),
-            json!(vulnerabilities),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("vulnerabilities".to_string(), json!(vulnerabilities));
     }
 
     Ok(result)
@@ -1045,9 +1065,7 @@ fn handle_decay_reversal(
         .get("strategy")
         .and_then(|v| v.as_str())
         .unwrap_or("full_refresh");
-    let budget_minutes = args
-        .get("budget_minutes")
-        .and_then(|v| v.as_u64());
+    let budget_minutes = args.get("budget_minutes").and_then(|v| v.as_u64());
 
     let model: agentic_time::DecayModel = engine
         .file()
@@ -1076,42 +1094,64 @@ fn handle_decay_reversal(
     let (recovery_rate, time_required_secs, steps, durability_label) = match strategy {
         "full_refresh" => {
             let rate = 0.001;
-            let t = (-((target - model.current_value) / (target - model.floor + 0.001)).ln() / rate) as i64;
-            (rate, t.max(3600), vec![
-                "Identify all decay sources".to_string(),
-                "Apply comprehensive refresh".to_string(),
-                "Verify full restoration".to_string(),
-                "Set up maintenance schedule".to_string(),
-            ], "long_lasting")
+            let t = (-((target - model.current_value) / (target - model.floor + 0.001)).ln() / rate)
+                as i64;
+            (
+                rate,
+                t.max(3600),
+                vec![
+                    "Identify all decay sources".to_string(),
+                    "Apply comprehensive refresh".to_string(),
+                    "Verify full restoration".to_string(),
+                    "Set up maintenance schedule".to_string(),
+                ],
+                "long_lasting",
+            )
         }
         "incremental" => {
             let rate = 0.0005;
-            let t = (-((target * 0.8 - model.current_value) / (target - model.floor + 0.001)).ln() / rate) as i64;
-            (rate, t.max(7200), vec![
-                "Assess current state".to_string(),
-                "Apply incremental improvements".to_string(),
-                "Monitor progress".to_string(),
-                "Repeat until target reached".to_string(),
-                "Lock in gains".to_string(),
-            ], "moderate")
+            let t = (-((target * 0.8 - model.current_value) / (target - model.floor + 0.001)).ln()
+                / rate) as i64;
+            (
+                rate,
+                t.max(7200),
+                vec![
+                    "Assess current state".to_string(),
+                    "Apply incremental improvements".to_string(),
+                    "Monitor progress".to_string(),
+                    "Repeat until target reached".to_string(),
+                    "Lock in gains".to_string(),
+                ],
+                "moderate",
+            )
         }
         "burst" => {
             let rate = 0.003;
             let t = 1800i64;
-            (rate, t, vec![
-                "Intensive burst session".to_string(),
-                "Rapid value restoration".to_string(),
-            ], "short_lived")
+            (
+                rate,
+                t,
+                vec![
+                    "Intensive burst session".to_string(),
+                    "Rapid value restoration".to_string(),
+                ],
+                "short_lived",
+            )
         }
         "sustained" => {
             let rate = 0.0003;
             let t = 14400i64;
-            (rate, t, vec![
-                "Begin slow recovery".to_string(),
-                "Gradual re-engagement over time".to_string(),
-                "Build sustainable habits".to_string(),
-                "Achieve and maintain new baseline".to_string(),
-            ], "very_durable")
+            (
+                rate,
+                t,
+                vec![
+                    "Begin slow recovery".to_string(),
+                    "Gradual re-engagement over time".to_string(),
+                    "Build sustainable habits".to_string(),
+                    "Achieve and maintain new baseline".to_string(),
+                ],
+                "very_durable",
+            )
         }
         _ => (0.001, 3600, vec!["Apply reversal".to_string()], "moderate"),
     };
@@ -1211,17 +1251,27 @@ fn handle_decay_analyze(
 
         let group_key = match group_by {
             "severity" => {
-                if ratio < 0.2 { "critical" }
-                else if ratio < 0.5 { "warning" }
-                else if ratio < 0.8 { "moderate" }
-                else { "healthy" }
+                if ratio < 0.2 {
+                    "critical"
+                } else if ratio < 0.5 {
+                    "warning"
+                } else if ratio < 0.8 {
+                    "moderate"
+                } else {
+                    "healthy"
+                }
             }
             "age" => {
                 let age_days = (Utc::now() - d.reference_time).num_days();
-                if age_days < 1 { "new" }
-                else if age_days < 7 { "recent" }
-                else if age_days < 30 { "established" }
-                else { "old" }
+                if age_days < 1 {
+                    "new"
+                } else if age_days < 7 {
+                    "recent"
+                } else if age_days < 30 {
+                    "established"
+                } else {
+                    "old"
+                }
             }
             _ => "all",
         }
@@ -1242,10 +1292,10 @@ fn handle_decay_analyze(
 
         if include_projections {
             let projection = project_decay(d, projection_hours, &[], 0.2);
-            model_info.as_object_mut().unwrap().insert(
-                "projection".to_string(),
-                projection,
-            );
+            model_info
+                .as_object_mut()
+                .unwrap()
+                .insert("projection".to_string(), projection);
         }
 
         models_data.push(model_info);
@@ -1390,17 +1440,17 @@ fn handle_dilation_analyze(
                 },
             }));
         }
-        result.as_object_mut().unwrap().insert(
-            "energy_curve".to_string(),
-            json!(energy_curve),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("energy_curve".to_string(), json!(energy_curve));
     }
 
     if include_recommendations {
-        result.as_object_mut().unwrap().insert(
-            "recommendations".to_string(),
-            json!(report.recommendations),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("recommendations".to_string(), json!(report.recommendations));
     }
 
     Ok(result)
@@ -1432,14 +1482,19 @@ fn handle_dilation_compensate(
         .list_by_type(agentic_time::EntityType::Schedule)
         .iter()
         .filter_map(|b| b.deserialize().ok())
-        .filter(|s: &agentic_time::Schedule| s.status == agentic_time::schedule::ScheduleStatus::Scheduled && s.start_at > now)
+        .filter(|s: &agentic_time::Schedule| {
+            s.status == agentic_time::schedule::ScheduleStatus::Scheduled && s.start_at > now
+        })
         .collect();
     let deadlines: Vec<agentic_time::Deadline> = engine
         .file()
         .list_by_type(agentic_time::EntityType::Deadline)
         .iter()
         .filter_map(|b| b.deserialize().ok())
-        .filter(|d: &agentic_time::Deadline| d.status == agentic_time::DeadlineStatus::Pending || d.status == agentic_time::DeadlineStatus::Warning)
+        .filter(|d: &agentic_time::Deadline| {
+            d.status == agentic_time::DeadlineStatus::Pending
+                || d.status == agentic_time::DeadlineStatus::Warning
+        })
         .collect();
 
     // Compute current productivity
@@ -1474,9 +1529,9 @@ fn handle_dilation_compensate(
         // Over-scheduled — suggest thinning
         for s in schedules.iter().take(max_adjustments) {
             if !preserve_deadlines
-                || !deadlines.iter().any(|d| {
-                    (d.due_at - s.start_at).num_hours().abs() < 2
-                })
+                || !deadlines
+                    .iter()
+                    .any(|d| (d.due_at - s.start_at).num_hours().abs() < 2)
             {
                 adjustments.push(json!({
                     "schedule_id": s.id.to_string(),
@@ -1556,17 +1611,17 @@ fn handle_dilation_report(
     });
 
     if format == "detailed" || format == "executive" {
-        result.as_object_mut().unwrap().insert(
-            "daily_breakdown".to_string(),
-            json!(daily_data),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("daily_breakdown".to_string(), json!(daily_data));
     }
 
     if format == "detailed" {
-        result.as_object_mut().unwrap().insert(
-            "recommendations".to_string(),
-            json!(report.recommendations),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("recommendations".to_string(), json!(report.recommendations));
     }
 
     Ok(result)
@@ -1669,7 +1724,11 @@ fn handle_anchor_create(
     let tags: Vec<String> = args
         .get("tags")
         .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect()
+        })
         .unwrap_or_default();
     let include_checksums = args
         .get("include_checksums")
@@ -1686,7 +1745,8 @@ fn handle_anchor_create(
 
     anchor.tags = tags.clone();
     if expires_hours > 0.0 {
-        anchor.expires_at = Some(Utc::now() + ChronoDuration::seconds((expires_hours * 3600.0) as i64));
+        anchor.expires_at =
+            Some(Utc::now() + ChronoDuration::seconds((expires_hours * 3600.0) as i64));
     }
 
     // Compute checksums if requested
@@ -1697,7 +1757,12 @@ fn handle_anchor_create(
             state.active_deadlines.len(),
             state.active_schedules.len(),
             state.active_sequences.len(),
-            state.decay_values.iter().map(|(_, v)| format!("{:.4}", v)).collect::<Vec<_>>().join(","),
+            state
+                .decay_values
+                .iter()
+                .map(|(_, v)| format!("{:.4}", v))
+                .collect::<Vec<_>>()
+                .join(","),
         );
         let mut hash: u64 = 0xcbf29ce484222325;
         for byte in data.bytes() {

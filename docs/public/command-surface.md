@@ -10,30 +10,36 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 
 | Command | Description |
 |---------|-------------|
+| `atime init` | Initialize a new `.atime` file |
+| `atime info` | Print file metadata |
+| `atime query` | Query temporal entities by type/text/status |
+| `atime export` | Export temporal data as JSON |
+| `atime ground` | Verify a claim has temporal backing |
+| `atime evidence` | Return supporting temporal evidence |
+| `atime suggest` | Suggest similar temporal records |
+| `atime workspace create` | Create a workspace label |
+| `atime workspace add` | Add an `.atime` context to a workspace |
+| `atime workspace list` | List workspace contexts |
+| `atime workspace query` | Query across workspace contexts |
+| `atime workspace compare` | Compare an item across contexts |
+| `atime workspace xref` | Cross-reference context presence/absence |
+| `atime runtime-sync` | Scan workspace `.atime` files and write sync snapshot |
 | `atime deadline add` | Add a new deadline |
-| `atime deadline list` | List deadlines with filters |
-| `atime deadline update` | Update a deadline |
-| `atime deadline remove` | Remove a deadline |
-| `atime deadline upcoming` | Show deadlines due within 7 days |
+| `atime deadline list` | List deadlines |
+| `atime deadline complete` | Mark a deadline complete |
+| `atime deadline cancel` | Cancel a deadline |
 | `atime deadline overdue` | Show overdue deadlines |
-| `atime schedule add` | Add a schedule entry |
-| `atime schedule list` | List schedule entries |
-| `atime schedule conflicts` | Detect scheduling conflicts |
-| `atime schedule remove` | Remove a schedule entry |
+| `atime schedule create` | Create a schedule entry |
+| `atime schedule today` | Show today's schedule window |
 | `atime sequence create` | Create a new sequence |
-| `atime sequence step add` | Add a step to a sequence |
-| `atime sequence step complete` | Complete a sequence step |
+| `atime sequence advance` | Advance sequence to next step |
 | `atime sequence status` | View sequence status |
 | `atime sequence list` | List all sequences |
-| `atime decay configure` | Configure a decay curve |
-| `atime decay query` | Query freshness at a given age |
-| `atime decay reset` | Reset a decay config |
+| `atime decay create` | Configure a decay model |
+| `atime decay value` | Read current decay value |
 | `atime decay list` | List all decay configs |
 | `atime stats` | Print graph statistics |
-| `atime export` | Export temporal data |
-| `atime import` | Import temporal data |
-| `atime validate` | Validate a .atime file |
-| `atime info` | Print file metadata |
+| `atime refresh` | Refresh temporal status projections |
 
 ## MCP Tools (agentic-time-mcp)
 
@@ -85,6 +91,18 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 |------|-------------|
 | `time_stats` | Get temporal statistics (counts by type and status) |
 | `time_refresh` | Refresh all statuses (update overdue deadlines, recalculate decays) |
+| `time_ground` | Verify a claim has temporal backing |
+| `time_evidence` | Get supporting evidence for a temporal query |
+| `time_suggest` | Suggest near matches for a temporal query |
+| `time_workspace_create` | Create a multi-time workspace |
+| `time_workspace_add` | Add an `.atime` file to workspace |
+| `time_workspace_list` | List workspace contexts |
+| `time_workspace_query` | Query across workspace contexts |
+| `time_workspace_compare` | Compare an item across contexts |
+| `time_workspace_xref` | Cross-reference item presence across contexts |
+| `session_start` | Start a time MCP interaction session |
+| `session_end` | End a time MCP interaction session |
+| `time_session_resume` | Resume recent session context |
 
 ### Advanced Tools
 

@@ -149,7 +149,11 @@ fn linear_trend(values: &[f64]) -> f64 {
         num += (x - x_mean) * (y - y_mean);
         den += (x - x_mean).powi(2);
     }
-    if den == 0.0 { 0.0 } else { num / den }
+    if den == 0.0 {
+        0.0
+    } else {
+        num / den
+    }
 }
 
 /// Levenshtein-inspired similarity between two strings (normalized 0.0-1.0).
@@ -215,11 +219,7 @@ fn escape_velocity(mass: f64, radius_hours: f64) -> f64 {
 // ─── Debt Analysis Engine ───────────────────────────────────────────────────
 
 /// Generate debt projections over time.
-fn project_debt(
-    items: &[Value],
-    projection_weeks: u32,
-    interest_model: &str,
-) -> Vec<Value> {
+fn project_debt(items: &[Value], projection_weeks: u32, interest_model: &str) -> Vec<Value> {
     let mut projections = Vec::new();
     let now = Utc::now();
 
@@ -282,14 +282,8 @@ fn compute_tidal_forces(wells: &[Value]) -> Vec<Value> {
 
     for i in 0..wells.len() {
         for j in (i + 1)..wells.len() {
-            let mass_a = wells[i]
-                .get("mass")
-                .and_then(|v| v.as_f64())
-                .unwrap_or(1.0);
-            let mass_b = wells[j]
-                .get("mass")
-                .and_then(|v| v.as_f64())
-                .unwrap_or(1.0);
+            let mass_a = wells[i].get("mass").and_then(|v| v.as_f64()).unwrap_or(1.0);
+            let mass_b = wells[j].get("mass").and_then(|v| v.as_f64()).unwrap_or(1.0);
 
             let time_a = wells[i]
                 .get("due_at_epoch")
@@ -456,8 +450,14 @@ fn detect_deadline_loops(
 
     // Sort by iteration count descending
     loops.sort_by(|a, b| {
-        let ca = a.get("iteration_count").and_then(|v| v.as_u64()).unwrap_or(0);
-        let cb = b.get("iteration_count").and_then(|v| v.as_u64()).unwrap_or(0);
+        let ca = a
+            .get("iteration_count")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
+        let cb = b
+            .get("iteration_count")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
         cb.cmp(&ca)
     });
 
@@ -506,10 +506,7 @@ fn handle_future_memory(
     engine: &mut agentic_time::WriteEngine,
 ) -> Result<Value, String> {
     let target_time = require_datetime(&args, "target_time")?;
-    let max_items = args
-        .get("max_items")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(20) as usize;
+    let max_items = args.get("max_items").and_then(|v| v.as_u64()).unwrap_or(20) as usize;
     let min_relevance = args
         .get("min_relevance")
         .and_then(|v| v.as_f64())
@@ -517,7 +514,11 @@ fn handle_future_memory(
     let focus_areas: Vec<String> = args
         .get("focus_areas")
         .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect()
+        })
         .unwrap_or_default();
 
     let result = engine
@@ -673,7 +674,11 @@ fn handle_future_validate(
     let total = outcomes.len();
     let matched = outcomes
         .iter()
-        .filter(|o| o.get("matched_prediction").and_then(|v| v.as_bool()).unwrap_or(false))
+        .filter(|o| {
+            o.get("matched_prediction")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+        })
         .count();
     let accuracy = if total > 0 {
         matched as f64 / total as f64
@@ -779,8 +784,14 @@ fn handle_debt_analyze(
 
     // Sort by current total descending
     items.sort_by(|a, b| {
-        let ca = a.get("current_total_minutes").and_then(|v| v.as_u64()).unwrap_or(0);
-        let cb = b.get("current_total_minutes").and_then(|v| v.as_u64()).unwrap_or(0);
+        let ca = a
+            .get("current_total_minutes")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
+        let cb = b
+            .get("current_total_minutes")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
         cb.cmp(&ca)
     });
 
@@ -839,16 +850,25 @@ fn handle_debt_report(
             "category" => format!("{:?}", d.category),
             "severity" => {
                 let current = d.calculate_current_total();
-                if current > 120 { "critical".to_string() }
-                else if current > 60 { "high".to_string() }
-                else if current > 30 { "medium".to_string() }
-                else { "low".to_string() }
+                if current > 120 {
+                    "critical".to_string()
+                } else if current > 60 {
+                    "high".to_string()
+                } else if current > 30 {
+                    "medium".to_string()
+                } else {
+                    "low".to_string()
+                }
             }
             "age" => {
                 let age_days = (Utc::now() - d.incurred_at).num_days();
-                if age_days > 30 { "old".to_string() }
-                else if age_days > 7 { "recent".to_string() }
-                else { "new".to_string() }
+                if age_days > 30 {
+                    "old".to_string()
+                } else if age_days > 7 {
+                    "recent".to_string()
+                } else {
+                    "new".to_string()
+                }
             }
             _ => "all".to_string(),
         };
@@ -903,10 +923,7 @@ fn handle_debt_payoff(
         .get("available_minutes_per_week")
         .and_then(|v| v.as_u64())
         .unwrap_or(120) as f64;
-    let max_items = args
-        .get("max_items")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(5) as usize;
+    let max_items = args.get("max_items").and_then(|v| v.as_u64()).unwrap_or(5) as usize;
 
     let report = engine.debt_analyze().map_err(|e| e.to_string())?;
 
@@ -982,7 +999,13 @@ fn handle_debt_payoff(
     let total_if_unpaid: f64 = report
         .items
         .iter()
-        .map(|d| compound_interest(d.calculate_current_total() as f64, d.interest_rate, total_weeks as f64))
+        .map(|d| {
+            compound_interest(
+                d.calculate_current_total() as f64,
+                d.interest_rate,
+                total_weeks as f64,
+            )
+        })
         .sum();
     let savings = total_if_unpaid - total_if_paid_now;
 
@@ -1003,10 +1026,7 @@ fn handle_debt_payoff(
 
 // ─── Debt Track Handler ─────────────────────────────────────────────────────
 
-fn handle_debt_track(
-    args: Value,
-    engine: &mut agentic_time::WriteEngine,
-) -> Result<Value, String> {
+fn handle_debt_track(args: Value, engine: &mut agentic_time::WriteEngine) -> Result<Value, String> {
     let lookback_weeks = args
         .get("lookback_weeks")
         .and_then(|v| v.as_u64())
@@ -1094,10 +1114,7 @@ fn handle_gravity_detect(
     args: Value,
     engine: &mut agentic_time::WriteEngine,
 ) -> Result<Value, String> {
-    let min_mass = args
-        .get("min_mass")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(1.0);
+    let min_mass = args.get("min_mass").and_then(|v| v.as_f64()).unwrap_or(1.0);
     let include_tidal = args
         .get("include_tidal_forces")
         .and_then(|v| v.as_bool())
@@ -1139,10 +1156,15 @@ fn handle_gravity_detect(
                 );
                 well.as_object_mut().unwrap().insert(
                     "escape_difficulty".to_string(),
-                    json!(if esc_vel > 2.0 { "very_hard" }
-                          else if esc_vel > 1.0 { "hard" }
-                          else if esc_vel > 0.5 { "moderate" }
-                          else { "easy" }),
+                    json!(if esc_vel > 2.0 {
+                        "very_hard"
+                    } else if esc_vel > 1.0 {
+                        "hard"
+                    } else if esc_vel > 0.5 {
+                        "moderate"
+                    } else {
+                        "easy"
+                    }),
                 );
             }
 
@@ -1161,14 +1183,12 @@ fn handle_gravity_detect(
     for well in &mut well_data {
         if let Some(event_id) = well.get("event_id").and_then(|v| v.as_str()) {
             if let Some(d) = deadlines.iter().find(|d| d.id.to_string() == event_id) {
-                well.as_object_mut().unwrap().insert(
-                    "label".to_string(),
-                    json!(d.label),
-                );
-                well.as_object_mut().unwrap().insert(
-                    "due_at".to_string(),
-                    json!(d.due_at.to_rfc3339()),
-                );
+                well.as_object_mut()
+                    .unwrap()
+                    .insert("label".to_string(), json!(d.label));
+                well.as_object_mut()
+                    .unwrap()
+                    .insert("due_at".to_string(), json!(d.due_at.to_rfc3339()));
                 well.as_object_mut().unwrap().insert(
                     "due_at_epoch".to_string(),
                     json!(d.due_at.timestamp() as f64),
@@ -1185,10 +1205,10 @@ fn handle_gravity_detect(
 
     if include_tidal && well_data.len() >= 2 {
         let tidal = compute_tidal_forces(&well_data);
-        result.as_object_mut().unwrap().insert(
-            "tidal_forces".to_string(),
-            json!(tidal),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("tidal_forces".to_string(), json!(tidal));
     }
 
     Ok(result)
@@ -1365,7 +1385,11 @@ fn handle_entanglement_status(
     if include_violations {
         let violations: Vec<&Value> = entanglements
             .iter()
-            .filter(|e| e.get("has_violation").and_then(|v| v.as_bool()).unwrap_or(false))
+            .filter(|e| {
+                e.get("has_violation")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false)
+            })
             .collect();
 
         result.as_object_mut().unwrap().insert(
@@ -1467,7 +1491,15 @@ fn handle_wormhole_create(
         .unwrap_or(true);
 
     let wormhole = engine
-        .wormhole_create(label_a, time_a, desc_a, label_b, time_b, desc_b, relationship)
+        .wormhole_create(
+            label_a,
+            time_a,
+            desc_a,
+            label_b,
+            time_b,
+            desc_b,
+            relationship,
+        )
         .map_err(|e| e.to_string())?;
 
     let temporal_distance_hours = (time_b - time_a).num_hours().abs() as f64;
@@ -1530,10 +1562,10 @@ fn handle_wormhole_create(
             }));
         }
 
-        result.as_object_mut().unwrap().insert(
-            "extracted_insights".to_string(),
-            json!(insights),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("extracted_insights".to_string(), json!(insights));
     }
 
     Ok(result)
@@ -1578,7 +1610,8 @@ fn handle_wormhole_traverse(
         let actionability = pseudo_random(seed, 2) * 0.3 + 0.4;
         let novelty = pseudo_random(seed, 3) * 0.5 + 0.3;
 
-        let overall_impact = (relevance * 0.4 + actionability * 0.3 + novelty * 0.3).clamp(0.0, 1.0);
+        let overall_impact =
+            (relevance * 0.4 + actionability * 0.3 + novelty * 0.3).clamp(0.0, 1.0);
 
         result.as_object_mut().unwrap().insert(
             "impact_assessment".to_string(),

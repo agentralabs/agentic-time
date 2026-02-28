@@ -569,11 +569,7 @@ impl ScoringWeights {
         if total == 0.0 {
             (0.33, 0.33, 0.34)
         } else {
-            (
-                self.speed / total,
-                self.quality / total,
-                self.risk / total,
-            )
+            (self.speed / total, self.quality / total, self.risk / total)
         }
     }
 }
@@ -606,10 +602,7 @@ fn score_approach(
 
     let raw_speed = sigmoid(3.0 - complexity_factor - workload * 0.1);
     let raw_quality = sigmoid(2.0 + pseudo_random(seed, 0) * 2.0 - complexity_factor * 0.5);
-    let raw_risk = 1.0
-        - sigmoid(
-            2.0 - pseudo_random(seed, 1) * 1.5 - schedule_density * 0.05,
-        );
+    let raw_risk = 1.0 - sigmoid(2.0 - pseudo_random(seed, 1) * 1.5 - schedule_density * 0.05);
 
     let composite = w_speed * raw_speed + w_quality * raw_quality + w_risk * (1.0 - raw_risk);
 
@@ -631,9 +624,7 @@ fn score_approach(
     }
 
     // Convergence analysis: compare to other approaches conceptually
-    let convergence_features: Vec<f64> = (0..8)
-        .map(|i| pseudo_random(seed, 20 + i))
-        .collect();
+    let convergence_features: Vec<f64> = (0..8).map(|i| pseudo_random(seed, 20 + i)).collect();
 
     json!({
         "approach": approach,
@@ -768,14 +759,8 @@ fn handle_timeline_fork(
     let mut comparison_matrix = Vec::new();
     for i in 0..sim_count {
         for j in (i + 1)..sim_count {
-            let score_a = simulations[i]
-                .get("scores")
-                .cloned()
-                .unwrap_or(json!({}));
-            let score_b = simulations[j]
-                .get("scores")
-                .cloned()
-                .unwrap_or(json!({}));
+            let score_a = simulations[i].get("scores").cloned().unwrap_or(json!({}));
+            let score_b = simulations[j].get("scores").cloned().unwrap_or(json!({}));
 
             let vec_a: Vec<f64> = ["speed", "quality", "risk", "reversibility"]
                 .iter()
@@ -935,9 +920,7 @@ fn handle_timeline_compare(
     let mut metric_results = Vec::new();
     for (mi, metric) in metrics.iter().enumerate() {
         let base = pseudo_random(seed, mi as u32) * 0.5 + 0.3;
-        let entity_factor = sigmoid(
-            (deadline_count + schedule_count) as f64 * 0.1 - 1.0,
-        );
+        let entity_factor = sigmoid((deadline_count + schedule_count) as f64 * 0.1 - 1.0);
         let score = (base * entity_factor).clamp(0.0, 1.0);
 
         metric_results.push(json!({
@@ -1257,10 +1240,7 @@ fn handle_clone_create(
 
 // ─── Clone Race Handler ─────────────────────────────────────────────────────
 
-fn handle_clone_race(
-    args: Value,
-    engine: &mut agentic_time::WriteEngine,
-) -> Result<Value, String> {
+fn handle_clone_race(args: Value, engine: &mut agentic_time::WriteEngine) -> Result<Value, String> {
     let approaches_val = args
         .get("approaches")
         .and_then(|v| v.as_array())
@@ -1297,7 +1277,14 @@ fn handle_clone_race(
         .iter()
         .enumerate()
         .map(|(i, approach)| {
-            score_approach(approach, i, approaches.len(), &deadlines, &schedules, &weights)
+            score_approach(
+                approach,
+                i,
+                approaches.len(),
+                &deadlines,
+                &schedules,
+                &weights,
+            )
         })
         .collect();
 
@@ -1754,14 +1741,14 @@ fn handle_echo_amplify(
             }
         }
 
-        result.as_object_mut().unwrap().insert(
-            "speculative_effects".to_string(),
-            json!(speculative),
-        );
-        result.as_object_mut().unwrap().insert(
-            "speculative_count".to_string(),
-            json!(speculative.len()),
-        );
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("speculative_effects".to_string(), json!(speculative));
+        result
+            .as_object_mut()
+            .unwrap()
+            .insert("speculative_count".to_string(), json!(speculative.len()));
     }
 
     Ok(result)
@@ -1814,7 +1801,16 @@ fn handle_echo_suppress(
         .collect();
 
     // Get base echoes
-    let base = propagate_echoes(event, &deadlines, &schedules, &sequences, &decays, 3, 0.1, &[]);
+    let base = propagate_echoes(
+        event,
+        &deadlines,
+        &schedules,
+        &sequences,
+        &decays,
+        3,
+        0.1,
+        &[],
+    );
 
     // Known pattern signatures for suppression
     let pattern_signatures: HashMap<&str, &str> = [
@@ -1861,10 +1857,7 @@ fn handle_echo_suppress(
                 }
 
                 // Compute novelty score
-                let impact = item
-                    .get("impact")
-                    .and_then(|v| v.as_f64())
-                    .unwrap_or(0.0);
+                let impact = item.get("impact").and_then(|v| v.as_f64()).unwrap_or(0.0);
                 let noise_factor = pseudo_random(seed, 500 + idx as u32);
                 let novelty = (impact * 0.4 + noise_factor * 0.6).clamp(0.0, 1.0);
 
@@ -1884,10 +1877,7 @@ fn handle_echo_suppress(
                 }
             }
 
-            let horizon = ripple
-                .get("horizon")
-                .cloned()
-                .unwrap_or(json!("unknown"));
+            let horizon = ripple.get("horizon").cloned().unwrap_or(json!("unknown"));
             if !filtered_items.is_empty() {
                 let severity = filtered_items
                     .iter()

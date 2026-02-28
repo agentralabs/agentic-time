@@ -1,7 +1,11 @@
 //! MCP tool definitions for AgenticTime.
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::{Mutex, OnceLock};
 
 /// A tool definition for the MCP protocol.
 pub struct ToolDefinition {
@@ -11,6 +15,41 @@ pub struct ToolDefinition {
     pub description: &'static str,
     /// JSON Schema for the tool input.
     pub input_schema: &'static str,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct WorkspaceContext {
+    path: String,
+    role: String,
+    label: Option<String>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+struct WorkspaceState {
+    workspaces: HashMap<String, Vec<WorkspaceContext>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct SessionRecord {
+    session_id: u64,
+    started_at: String,
+    ended_at: Option<String>,
+    metadata: Value,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+struct SessionState {
+    next_id: u64,
+    sessions: Vec<SessionRecord>,
+}
+
+#[derive(Debug, Clone)]
+struct SearchRecord {
+    id: String,
+    entity_type: String,
+    label: String,
+    status: Option<String>,
+    text: String,
 }
 
 /// All AgenticTime MCP tools.
@@ -116,6 +155,66 @@ pub const TOOLS: &[ToolDefinition] = &[
         description: "Refresh all statuses (update overdue deadlines, recalculate decays)",
         input_schema: r#"{"type":"object","properties":{}}"#,
     },
+    ToolDefinition {
+        name: "time_ground",
+        description: "Verify a claim has temporal backing (anti-hallucination)",
+        input_schema: r#"{"type":"object","properties":{"claim":{"type":"string"},"threshold":{"type":"number","default":0.35}},"required":["claim"]}"#,
+    },
+    ToolDefinition {
+        name: "time_evidence",
+        description: "Get detailed evidence for a claim from temporal records",
+        input_schema: r#"{"type":"object","properties":{"query":{"type":"string"},"max_results":{"type":"integer","default":10}},"required":["query"]}"#,
+    },
+    ToolDefinition {
+        name: "time_suggest",
+        description: "Find similar temporal records when a claim doesn't match exactly",
+        input_schema: r#"{"type":"object","properties":{"query":{"type":"string"},"limit":{"type":"integer","default":5}},"required":["query"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_create",
+        description: "Create a multi-time workspace for loading and querying multiple .atime files",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"}},"required":["workspace"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_add",
+        description: "Add an .atime file to a workspace",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"},"path":{"type":"string"},"role":{"type":"string"},"label":{"type":"string"}},"required":["workspace","path"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_list",
+        description: "List all loaded contexts in a workspace",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"}},"required":["workspace"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_query",
+        description: "Search across all time contexts in a workspace",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"},"query":{"type":"string"},"max_per_context":{"type":"integer","default":5}},"required":["workspace","query"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_compare",
+        description: "Compare how a concept appears across time contexts",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"},"item":{"type":"string"},"max_per_context":{"type":"integer","default":5}},"required":["workspace","item"]}"#,
+    },
+    ToolDefinition {
+        name: "time_workspace_xref",
+        description: "Cross-reference which time contexts contain an item",
+        input_schema: r#"{"type":"object","properties":{"workspace":{"type":"string"},"item":{"type":"string"}},"required":["workspace","item"]}"#,
+    },
+    ToolDefinition {
+        name: "session_start",
+        description: "Start a new time interaction session",
+        input_schema: r#"{"type":"object","properties":{"session_id":{"type":"integer"},"metadata":{"type":"object"}}}"#,
+    },
+    ToolDefinition {
+        name: "session_end",
+        description: "End a time interaction session",
+        input_schema: r#"{"type":"object","properties":{"session_id":{"type":"integer"}}}"#,
+    },
+    ToolDefinition {
+        name: "time_session_resume",
+        description: "Load context from recent time sessions",
+        input_schema: r#"{"type":"object","properties":{"limit":{"type":"integer","default":5}}}"#,
+    },
 ];
 
 // ---------------------------------------------------------------------------
@@ -164,6 +263,176 @@ fn parse_tags(args: &Value) -> Vec<String> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+fn state_lock() -> &'static Mutex<()> {
+    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+    LOCK.get_or_init(|| Mutex::new(()))
+}
+
+fn time_state_dir() -> PathBuf {
+    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+    PathBuf::from(home).join(".agentic").join("time")
+}
+
+fn workspace_state_path() -> PathBuf {
+    time_state_dir().join("workspaces.json")
+}
+
+fn session_state_path() -> PathBuf {
+    time_state_dir().join("sessions.json")
+}
+
+fn load_workspace_state() -> Result<WorkspaceState, String> {
+    let path = workspace_state_path();
+    if !path.exists() {
+        return Ok(WorkspaceState::default());
+    }
+    let raw = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+    serde_json::from_str(&raw).map_err(|e| e.to_string())
+}
+
+fn save_workspace_state(state: &WorkspaceState) -> Result<(), String> {
+    let path = workspace_state_path();
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    let raw = serde_json::to_string_pretty(state).map_err(|e| e.to_string())?;
+    std::fs::write(path, raw).map_err(|e| e.to_string())
+}
+
+fn load_session_state() -> Result<SessionState, String> {
+    let path = session_state_path();
+    if !path.exists() {
+        return Ok(SessionState {
+            next_id: 1,
+            sessions: Vec::new(),
+        });
+    }
+    let raw = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+    serde_json::from_str(&raw).map_err(|e| e.to_string())
+}
+
+fn save_session_state(state: &SessionState) -> Result<(), String> {
+    let path = session_state_path();
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    let raw = serde_json::to_string_pretty(state).map_err(|e| e.to_string())?;
+    std::fs::write(path, raw).map_err(|e| e.to_string())
+}
+
+fn score_text(haystack: &str, query: &str) -> f32 {
+    let hs = haystack.to_ascii_lowercase();
+    let words: Vec<String> = query
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|w| !w.is_empty())
+        .map(|w| w.to_ascii_lowercase())
+        .collect();
+    if words.is_empty() {
+        return 0.0;
+    }
+    let hits = words.iter().filter(|w| hs.contains(w.as_str())).count();
+    hits as f32 / words.len() as f32
+}
+
+fn collect_search_records(file: &agentic_time::TimeFile) -> Vec<SearchRecord> {
+    let mut out = Vec::new();
+
+    for block in file.list_by_type(agentic_time::EntityType::Deadline) {
+        if let Ok(d) = block.deserialize::<agentic_time::Deadline>() {
+            let raw = serde_json::to_string(&d).unwrap_or_default();
+            out.push(SearchRecord {
+                id: d.id.to_string(),
+                entity_type: "deadline".to_string(),
+                label: d.label,
+                status: Some(format!("{:?}", d.status).to_ascii_lowercase()),
+                text: raw.to_ascii_lowercase(),
+            });
+        }
+    }
+
+    for block in file.list_by_type(agentic_time::EntityType::Schedule) {
+        if let Ok(s) = block.deserialize::<agentic_time::Schedule>() {
+            let raw = serde_json::to_string(&s).unwrap_or_default();
+            out.push(SearchRecord {
+                id: s.id.to_string(),
+                entity_type: "schedule".to_string(),
+                label: s.label,
+                status: Some(format!("{:?}", s.status).to_ascii_lowercase()),
+                text: raw.to_ascii_lowercase(),
+            });
+        }
+    }
+
+    for block in file.list_by_type(agentic_time::EntityType::Sequence) {
+        if let Ok(s) = block.deserialize::<agentic_time::Sequence>() {
+            let raw = serde_json::to_string(&s).unwrap_or_default();
+            out.push(SearchRecord {
+                id: s.id.to_string(),
+                entity_type: "sequence".to_string(),
+                label: s.label,
+                status: Some(format!("{:?}", s.status).to_ascii_lowercase()),
+                text: raw.to_ascii_lowercase(),
+            });
+        }
+    }
+
+    for block in file.list_by_type(agentic_time::EntityType::Decay) {
+        if let Ok(d) = block.deserialize::<agentic_time::DecayModel>() {
+            let raw = serde_json::to_string(&d).unwrap_or_default();
+            out.push(SearchRecord {
+                id: d.id.to_string(),
+                entity_type: "decay".to_string(),
+                label: d.label,
+                status: None,
+                text: raw.to_ascii_lowercase(),
+            });
+        }
+    }
+
+    for block in file.list_by_type(agentic_time::EntityType::Duration) {
+        if let Ok(d) = block.deserialize::<agentic_time::DurationEstimate>() {
+            let raw = serde_json::to_string(&d).unwrap_or_default();
+            out.push(SearchRecord {
+                id: d.id.to_string(),
+                entity_type: "duration".to_string(),
+                label: d.label,
+                status: None,
+                text: raw.to_ascii_lowercase(),
+            });
+        }
+    }
+
+    out
+}
+
+fn top_matches(file: &agentic_time::TimeFile, query: &str, limit: usize) -> Vec<Value> {
+    let mut rows: Vec<Value> = collect_search_records(file)
+        .into_iter()
+        .filter_map(|r| {
+            let score = score_text(&r.text, query);
+            if score > 0.0 {
+                Some(json!({
+                    "id": r.id,
+                    "entity_type": r.entity_type,
+                    "label": r.label,
+                    "status": r.status,
+                    "score": score
+                }))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    rows.sort_by(|a, b| {
+        let sa = a.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let sb = b.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        sb.partial_cmp(&sa).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    rows.truncate(limit);
+    rows
 }
 
 // ---------------------------------------------------------------------------
@@ -838,6 +1107,322 @@ pub async fn handle_tool_call(
                 "decays_updated": report.decays_updated,
                 "new_overdue": new_overdue_ids,
                 "new_overdue_count": new_overdue_ids.len(),
+            }))
+        }
+        "time_ground" => {
+            let claim = require_str(&args, "claim")?;
+            let threshold = args
+                .get("threshold")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.35) as f32;
+            let evidence = top_matches(engine.file(), claim, 5);
+            let best_score = evidence
+                .first()
+                .and_then(|v| v.get("score"))
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0) as f32;
+            let status = if best_score >= threshold {
+                "grounded"
+            } else if !evidence.is_empty() {
+                "partial"
+            } else {
+                "ungrounded"
+            };
+
+            Ok(json!({
+                "status": status,
+                "claim": claim,
+                "threshold": threshold,
+                "best_score": best_score,
+                "evidence": evidence
+            }))
+        }
+        "time_evidence" => {
+            let query = require_str(&args, "query")?;
+            let max_results = args
+                .get("max_results")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(10) as usize;
+            let evidence = top_matches(engine.file(), query, max_results);
+            Ok(json!({
+                "query": query,
+                "count": evidence.len(),
+                "evidence": evidence
+            }))
+        }
+        "time_suggest" => {
+            let query = require_str(&args, "query")?;
+            let limit = args.get("limit").and_then(|v| v.as_u64()).unwrap_or(5) as usize;
+            let suggestions = top_matches(engine.file(), query, limit);
+            Ok(json!({
+                "query": query,
+                "count": suggestions.len(),
+                "suggestions": suggestions
+            }))
+        }
+        "time_workspace_create" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let mut state = load_workspace_state()?;
+            state.workspaces.entry(workspace.to_string()).or_default();
+            save_workspace_state(&state)?;
+            Ok(json!({
+                "workspace": workspace,
+                "status": "created"
+            }))
+        }
+        "time_workspace_add" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let path = require_str(&args, "path")?;
+            if !std::path::Path::new(path).exists() {
+                return Err(format!("Path does not exist: {}", path));
+            }
+
+            let role = args
+                .get("role")
+                .and_then(|v| v.as_str())
+                .unwrap_or("primary")
+                .to_string();
+            let label = args
+                .get("label")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+
+            let mut state = load_workspace_state()?;
+            let context_count = {
+                let contexts = state.workspaces.entry(workspace.to_string()).or_default();
+                if !contexts.iter().any(|c| c.path == path) {
+                    contexts.push(WorkspaceContext {
+                        path: path.to_string(),
+                        role,
+                        label,
+                    });
+                }
+                contexts.len()
+            };
+            save_workspace_state(&state)?;
+
+            Ok(json!({
+                "workspace": workspace,
+                "path": path,
+                "context_count": context_count
+            }))
+        }
+        "time_workspace_list" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let state = load_workspace_state()?;
+            let contexts = state.workspaces.get(workspace).cloned().unwrap_or_default();
+            Ok(json!({
+                "workspace": workspace,
+                "count": contexts.len(),
+                "contexts": contexts
+            }))
+        }
+        "time_workspace_query" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let query = require_str(&args, "query")?;
+            let max_per_context = args
+                .get("max_per_context")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(5) as usize;
+            let state = load_workspace_state()?;
+            let contexts = state.workspaces.get(workspace).cloned().unwrap_or_default();
+
+            let mut results = Vec::new();
+            for ctx in contexts {
+                let path = PathBuf::from(&ctx.path);
+                match agentic_time::TimeFile::open(&path) {
+                    Ok(file) => results.push(json!({
+                        "path": ctx.path,
+                        "role": ctx.role,
+                        "label": ctx.label,
+                        "matches": top_matches(&file, query, max_per_context)
+                    })),
+                    Err(e) => results.push(json!({
+                        "path": ctx.path,
+                        "error": e.to_string()
+                    })),
+                }
+            }
+
+            Ok(json!({
+                "workspace": workspace,
+                "query": query,
+                "results": results
+            }))
+        }
+        "time_workspace_compare" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let item = require_str(&args, "item")?;
+            let max_per_context = args
+                .get("max_per_context")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(5) as usize;
+            let state = load_workspace_state()?;
+            let contexts = state.workspaces.get(workspace).cloned().unwrap_or_default();
+
+            let mut comparison = Vec::new();
+            for ctx in contexts {
+                let path = PathBuf::from(&ctx.path);
+                match agentic_time::TimeFile::open(&path) {
+                    Ok(file) => {
+                        let matches = top_matches(&file, item, max_per_context);
+                        comparison.push(json!({
+                            "path": ctx.path,
+                            "match_count": matches.len(),
+                            "top_matches": matches
+                        }));
+                    }
+                    Err(e) => comparison.push(json!({
+                        "path": ctx.path,
+                        "error": e.to_string()
+                    })),
+                }
+            }
+
+            Ok(json!({
+                "workspace": workspace,
+                "item": item,
+                "comparison": comparison
+            }))
+        }
+        "time_workspace_xref" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let workspace = require_str(&args, "workspace")?;
+            let item = require_str(&args, "item")?;
+            let state = load_workspace_state()?;
+            let contexts = state.workspaces.get(workspace).cloned().unwrap_or_default();
+            let mut present_in = Vec::new();
+            let mut absent_from = Vec::new();
+
+            for ctx in contexts {
+                let path = PathBuf::from(&ctx.path);
+                let has_match = agentic_time::TimeFile::open(&path)
+                    .map(|f| !top_matches(&f, item, 1).is_empty())
+                    .unwrap_or(false);
+                if has_match {
+                    present_in.push(ctx.path);
+                } else {
+                    absent_from.push(ctx.path);
+                }
+            }
+
+            Ok(json!({
+                "workspace": workspace,
+                "item": item,
+                "present_in": present_in,
+                "absent_from": absent_from
+            }))
+        }
+        "session_start" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let mut state = load_session_state()?;
+            let requested_id = args.get("session_id").and_then(|v| v.as_u64());
+            let session_id = requested_id.unwrap_or(state.next_id.max(1));
+            let metadata = args.get("metadata").cloned().unwrap_or_else(|| json!({}));
+            state.sessions.push(SessionRecord {
+                session_id,
+                started_at: Utc::now().to_rfc3339(),
+                ended_at: None,
+                metadata,
+            });
+            if state.next_id <= session_id {
+                state.next_id = session_id + 1;
+            }
+            save_session_state(&state)?;
+            Ok(json!({
+                "session_id": session_id,
+                "status": "started"
+            }))
+        }
+        "session_end" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let mut state = load_session_state()?;
+            let session_id = args.get("session_id").and_then(|v| v.as_u64());
+            let now = Utc::now().to_rfc3339();
+
+            let ended = if let Some(target) = session_id {
+                if let Some(record) = state
+                    .sessions
+                    .iter_mut()
+                    .find(|s| s.session_id == target && s.ended_at.is_none())
+                {
+                    record.ended_at = Some(now.clone());
+                    Some(target)
+                } else {
+                    None
+                }
+            } else if let Some(record) = state
+                .sessions
+                .iter_mut()
+                .rev()
+                .find(|s| s.ended_at.is_none())
+            {
+                record.ended_at = Some(now.clone());
+                Some(record.session_id)
+            } else {
+                None
+            };
+
+            let Some(id) = ended else {
+                return Err("No active session found to end".to_string());
+            };
+
+            save_session_state(&state)?;
+            Ok(json!({
+                "session_id": id,
+                "ended_at": now,
+                "status": "ended"
+            }))
+        }
+        "time_session_resume" => {
+            let _guard = state_lock()
+                .lock()
+                .map_err(|_| "state lock poisoned".to_string())?;
+            let limit = args.get("limit").and_then(|v| v.as_u64()).unwrap_or(5) as usize;
+            let state = load_session_state()?;
+            let recent: Vec<Value> = state
+                .sessions
+                .iter()
+                .rev()
+                .take(limit)
+                .map(|s| {
+                    json!({
+                        "session_id": s.session_id,
+                        "started_at": s.started_at,
+                        "ended_at": s.ended_at,
+                        "metadata": s.metadata
+                    })
+                })
+                .collect();
+            let stats = agentic_time::QueryEngine::new(engine.file())
+                .stats()
+                .map_err(|e| e.to_string())?;
+            Ok(json!({
+                "last_session": recent.first().cloned(),
+                "recent_sessions": recent,
+                "active_sessions": state.sessions.iter().filter(|s| s.ended_at.is_none()).count(),
+                "stats": stats
             }))
         }
 

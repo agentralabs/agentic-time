@@ -2,6 +2,11 @@
 
 use clap::{Args, Subcommand};
 
+fn fail(msg: &str) -> ! {
+    eprintln!("{msg}");
+    std::process::exit(1);
+}
+
 #[derive(Args)]
 pub struct DecayArgs {
     #[command(subcommand)]
@@ -51,25 +56,24 @@ pub fn run(args: DecayArgs, atime_path: &str) {
                     half_life_secs: (rate * 3600.0) as i64,
                 },
                 _ => {
-                    eprintln!(
+                    fail(&format!(
                         "Unknown decay type: {}. Use linear, exponential, or half_life",
                         r#type
-                    );
-                    return;
+                    ));
                 }
             };
             let decay = agentic_time::DecayModel::new(&label, initial, decay_type);
             match engine.add_decay(decay) {
                 Ok(id) => println!("Created decay model: {}", id),
-                Err(e) => eprintln!("Error: {}", e),
+                Err(e) => fail(&format!("Error: {}", e)),
             }
         }
         DecayCommand::Value { id } => match id.parse::<agentic_time::TemporalId>() {
             Ok(tid) => match engine.refresh_decay(&tid) {
                 Ok(val) => println!("Current value: {:.4}", val),
-                Err(e) => eprintln!("Error: {}", e),
+                Err(e) => fail(&format!("Error: {}", e)),
             },
-            Err(e) => eprintln!("Invalid ID: {}", e),
+            Err(e) => fail(&format!("Invalid ID: {}", e)),
         },
         DecayCommand::List => {
             let query = agentic_time::QueryEngine::new(engine.file());
@@ -82,7 +86,7 @@ pub fn run(args: DecayArgs, atime_path: &str) {
                         println!("No decay models.");
                     }
                 }
-                Err(e) => eprintln!("Error: {}", e),
+                Err(e) => fail(&format!("Error: {}", e)),
             }
         }
     }
