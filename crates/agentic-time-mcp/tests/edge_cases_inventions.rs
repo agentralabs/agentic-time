@@ -80,11 +80,21 @@ fn three_days_dt() -> String {
 // =========================================================================
 
 #[test]
-fn test_tools_array_length_is_35() {
+fn test_tools_array_length_is_56() {
+    // 19 core tools + 11 exploration + 13 protection + 13 management = 56 total
+    let total = agentic_time_mcp::tools::TOOLS.len()
+        + agentic_time_mcp::invention_exploration::TOOL_DEFS.len()
+        + agentic_time_mcp::invention_protection::TOOL_DEFS.len()
+        + agentic_time_mcp::invention_management::TOOL_DEFS.len();
+    assert_eq!(
+        total,
+        56,
+        "Total tools should be 56 (19 core + 37 invention)"
+    );
     assert_eq!(
         agentic_time_mcp::tools::TOOLS.len(),
-        35,
-        "TOOLS array should contain 35 tool definitions (19 core + 16 inventions)"
+        19,
+        "Core TOOLS array should contain 19 tool definitions"
     );
 }
 

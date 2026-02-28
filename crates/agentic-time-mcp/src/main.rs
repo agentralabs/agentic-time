@@ -2,6 +2,9 @@
 
 mod ghost_bridge;
 mod greeting;
+mod invention_exploration;
+mod invention_management;
+mod invention_protection;
 mod prompts;
 mod resources;
 mod server;

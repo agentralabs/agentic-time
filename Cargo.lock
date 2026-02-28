@@ -43,6 +43,7 @@ dependencies = [
  "chrono",
  "clap",
  "serde_json",
+ "tempfile",
  "tracing",
  "tracing-subscriber",
 ]

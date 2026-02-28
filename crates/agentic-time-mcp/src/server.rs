@@ -9,6 +9,9 @@ use serde_json::{json, Value};
 
 use crate::ghost_bridge;
 use crate::greeting;
+use crate::invention_exploration;
+use crate::invention_management;
+use crate::invention_protection;
 use crate::prompts;
 use crate::stdio::{validate_jsonrpc, StdioTransport, TransportError};
 use crate::tools;
@@ -140,6 +143,9 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
             "tools/list" => {
                 let tool_list: Vec<Value> = tools::TOOLS
                     .iter()
+                    .chain(invention_exploration::TOOL_DEFS.iter())
+                    .chain(invention_protection::TOOL_DEFS.iter())
+                    .chain(invention_management::TOOL_DEFS.iter())
                     .map(|t| {
                         json!({
                             "name": t.name,
@@ -160,7 +166,18 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
                 let tool_name = params.get("name").and_then(|n| n.as_str()).unwrap_or("");
                 let args = params.get("arguments").cloned().unwrap_or(json!({}));
 
-                match tools::handle_tool_call(tool_name, args, &mut engine).await {
+                // Try invention modules first, then fall back to core tools
+                let result = if let Some(r) = invention_exploration::try_handle(tool_name, args.clone(), &mut engine) {
+                    r
+                } else if let Some(r) = invention_protection::try_handle(tool_name, args.clone(), &mut engine) {
+                    r
+                } else if let Some(r) = invention_management::try_handle(tool_name, args.clone(), &mut engine) {
+                    r
+                } else {
+                    tools::handle_tool_call(tool_name, args, &mut engine).await
+                };
+
+                match result {
                     Ok(result) => json!({
                         "jsonrpc": "2.0",
                         "id": id,
