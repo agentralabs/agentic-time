@@ -43,6 +43,10 @@ pub enum TimeError {
     #[error("Invalid duration: {0}")]
     InvalidDuration(String),
 
+    /// Invalid input parameter.
+    #[error("Invalid input: {0}")]
+    InvalidInput(String),
+
     /// File format error.
     #[error("File format error: {0}")]
     FileFormat(String),

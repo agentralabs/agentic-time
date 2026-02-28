@@ -80,11 +80,11 @@ fn three_days_dt() -> String {
 // =========================================================================
 
 #[test]
-fn test_tools_array_length_is_19() {
+fn test_tools_array_length_is_35() {
     assert_eq!(
         agentic_time_mcp::tools::TOOLS.len(),
-        19,
-        "TOOLS array should contain 19 tool definitions (18 tools + time_refresh)"
+        35,
+        "TOOLS array should contain 35 tool definitions (19 core + 16 inventions)"
     );
 }
 

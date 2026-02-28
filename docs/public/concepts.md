@@ -14,7 +14,7 @@ A fixed point in time with an associated task or milestone.
 
 - **Fields**: title, due_at (UTC), priority, status, tags, depends_on
 - **Priority levels**: low, medium, high, critical
-- **Statuses**: pending, in_progress, completed, missed, cancelled
+- **Statuses**: pending, in_progress, completed, completed_late, missed, cancelled
 - **Dependencies**: deadlines can depend on other deadlines (cascade analysis)
 
 ### Duration
@@ -45,10 +45,14 @@ An ordered chain of steps with dependency constraints.
 
 A function modeling how information freshness decreases over time.
 
-- **Curves**: exponential (default), linear, step
-- **Exponential**: `freshness = 0.5 ^ (age / halflife)` -- smooth, gradual decay
-- **Linear**: `freshness = max(0, 1 - age / window)` -- steady decline to zero
-- **Step**: `freshness = 1.0 if age < threshold else floor` -- binary fresh/stale
+- **Curves**: exponential (default), linear, half-life, step, custom
+- **Exponential**: `value = initial * e^(-lambda * t)` -- smooth, continuous decay governed by a decay constant (lambda)
+- **Linear**: `value = initial - (rate * t)` -- steady decline at a fixed rate per second until reaching the floor
+- **Half-life**: `value = initial * 0.5^(t / half_life)` -- intuitive model where value halves at regular intervals
+- **Step**: `value = initial - (drop * floor(t / interval))` -- discrete drops at regular intervals
+- **Custom**: user-defined curve via interpolation points (time_offset_secs, value) with linear interpolation between points
+
+All decay models support a configurable floor (minimum value the decay will never go below). The `refresh()` method resets the reference time back to now, restoring the value to its initial level. The `time_until(threshold)` method calculates how long before the value drops to a given level.
 
 ## Temporal Graph
 
@@ -58,6 +62,24 @@ All entities live in a temporal graph stored as a `.atime` file. The graph suppo
 - Filtered queries with sorting and pagination
 - Cross-entity references (e.g., deadlines linked to sequence steps)
 - Export/import for backup and migration
+
+## Query Engine
+
+The query engine provides high-level temporal queries over the `.atime` graph:
+
+- **Overdue deadlines**: Find all deadlines past their due date that are not completed or cancelled
+- **Due within**: Find deadlines due within a specified duration from now
+- **Schedule conflicts**: Detect overlapping schedule blocks
+- **Decay queries**: Calculate current decay values at any point in time
+- **Sequence progress**: Query step completion status across sequences
+
+## Indexes
+
+AgenticTime maintains in-memory indexes for fast query execution:
+
+- **Deadline index**: Sorted by due date for efficient range queries
+- **Decay index**: Tracks decay models for rapid freshness calculations
+- **Sequence index**: Ordered step lookups for progress tracking
 
 ## File Format
 
@@ -83,3 +105,11 @@ When used alongside AgenticMemory, decay curves can weight memory retrieval:
 ## Timestamps
 
 All timestamps are stored in UTC. Display timezone is configurable via `ATIME_TIMEZONE` environment variable. Deadline comparison and conflict detection always operate in UTC to avoid ambiguity.
+
+## Write Engine
+
+The write engine handles mutations to the `.atime` file with transactional semantics. All entity creation, updates, and deletions go through the write engine to ensure consistency between the in-memory graph and the persisted file. Concurrent writes are serialized through file-level locking.
+
+## MCP Integration
+
+`agentic-time-mcp` exposes temporal operations over stdio MCP transport. Tools include deadline management (`time_deadline_add`, `time_deadline_list`), schedule conflict detection (`time_schedule_conflicts`), decay queries (`time_decay_query`), and aggregate statistics (`time_stats`). The server supports the full MCP protocol including capability negotiation and tool listing.

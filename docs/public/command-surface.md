@@ -86,6 +86,27 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 | `time_stats` | Get temporal statistics (counts by type and status) |
 | `time_refresh` | Refresh all statuses (update overdue deadlines, recalculate decays) |
 
+### Invention Tools
+
+| Tool | Description |
+|------|-------------|
+| `time_timeline_fork` | Fork the timeline for what-if analysis at a decision point |
+| `time_clone_race` | Create parallel exploration clones racing to find the best approach |
+| `time_echo_detect` | Detect temporal echoes and ripple effects from an event |
+| `time_deadline_prophecy` | Predict deadline outcomes based on current trajectory |
+| `time_causal_archaeology` | Excavate cause-effect chains from temporal history |
+| `time_future_memory` | Precompute future context for an upcoming point in time |
+| `time_debt_analyze` | Analyze temporal debt from overdue and deferred items |
+| `time_gravity_detect` | Detect chrono-gravity wells pulling temporal items toward them |
+| `time_entanglement_create` | Create a temporal entanglement linking entities that must move together |
+| `time_anomaly_scan` | Scan the temporal graph for anomalies and health issues |
+| `time_decay_reversal` | Analyze reversal options for a decaying value |
+| `time_dilation_analyze` | Analyze time dilation patterns and subjective time perception |
+| `time_jump_create` | Jump to a specific point in the project timeline |
+| `time_anchor_create` | Create a temporal anchor capturing current state as a savepoint |
+| `time_loop_detect` | Detect time loop patterns from repeated similar events |
+| `time_wormhole_create` | Connect two distant points in time with a causal wormhole |
+
 ## MCP Resources (atime://)
 
 | Resource | Description |

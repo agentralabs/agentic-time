@@ -45,6 +45,9 @@ impl From<TimeError> for SisterError {
             TimeError::InvalidDuration(msg) => {
                 SisterError::invalid_input(format!("Invalid duration: {msg}"))
             }
+            TimeError::InvalidInput(msg) => {
+                SisterError::invalid_input(format!("Invalid input: {msg}"))
+            }
             TimeError::FileFormat(msg) => SisterError::new(
                 ErrorCode::VersionMismatch,
                 format!("File format error: {msg}"),

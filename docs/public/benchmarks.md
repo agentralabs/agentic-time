@@ -8,10 +8,13 @@ Performance characteristics of AgenticTime operations.
 
 ## Test Environment
 
-- Hardware: Apple M2, 16 GB RAM
-- OS: macOS 14
-- Rust: 1.77 (stable)
-- File: `.atime` with varying entity counts
+| Component | Value |
+|:--|:--|
+| Hardware | Apple M2, 16 GB RAM |
+| OS | macOS 14 |
+| Rust | 1.77 (stable, release build) |
+| File format | `.atime` (MessagePack encoded) |
+| Date/time library | `chrono` (UTC throughout) |
 
 ## Core Operations
 
@@ -26,6 +29,18 @@ Performance characteristics of AgenticTime operations.
 | Save file | 0.5 ms | 3.2 ms | 28 ms |
 | Conflict detection | 0.1 ms | 0.8 ms | 7.2 ms |
 | Decay query | 0.001 ms | 0.001 ms | 0.001 ms |
+
+## Performance Tiers
+
+Operations fall into three latency categories:
+
+| Tier | Latency | Operations |
+|:--|:--|:--|
+| Constant-time | <0.01 ms | Single decay calculation, individual entity lookup by ID |
+| Linear-scan | 0.1-8 ms | Filtered list queries, conflict detection, overdue checks |
+| I/O-bound | 0.5-28 ms | File open, file save (scales with entity count and payload size) |
+
+Decay calculations are O(1) regardless of entity count because they are pure mathematical functions evaluated at a single point in time. List operations scale linearly with entity count. File I/O scales with the total serialized payload size.
 
 ## MCP Tool Latency
 
@@ -48,6 +63,8 @@ End-to-end latency for MCP tool calls (including JSON-RPC overhead):
 | 10,000 | 920 KB |
 | 100,000 | 9.1 MB |
 
+File sizes are compact due to MessagePack encoding. Each entity contributes roughly 80-100 bytes on average depending on tag count and label length.
+
 ## Memory Usage
 
 | Entity Count | RSS |
@@ -66,6 +83,8 @@ End-to-end latency for MCP tool calls (including JSON-RPC overhead):
 | 4 concurrent readers | 180,000 ops/sec |
 | 2 readers + 1 writer | 35,000 ops/sec |
 
+Write throughput is limited by file locking and save operations. Read throughput scales well with concurrent readers since all queries operate on in-memory data structures.
+
 ## Comparison
 
 AgenticTime vs. common alternatives for temporal data:
@@ -74,8 +93,31 @@ AgenticTime vs. common alternatives for temporal data:
 |---------|------------|-----------------|-----------|
 | Structured temporal types | Native | Manual | Manual |
 | Conflict detection | Built-in | Query-based | Manual |
-| Decay curves | Built-in | Not available | Manual |
+| Decay curves | Built-in (5 types) | Not available | Manual |
 | File portability | Single file | Single file | Single file |
 | Concurrent access | Lock + merge | WAL | No safety |
 | MCP integration | Native | Manual | Manual |
 | Typical query latency | < 1 ms | 1-5 ms | 10-100 ms |
+
+## Reproducing Benchmarks
+
+To reproduce these numbers on your own hardware:
+
+```bash
+# Clone and build
+git clone https://github.com/agentralabs/agentic-time
+cd agentic-time
+
+# Run the benchmark suite
+cargo bench --package agentic-time
+
+# Run the stress tests
+cargo test --package agentic-time --test stress_tests -- --nocapture
+
+# Quick validation
+cargo test --workspace
+cargo build --release
+agentic-time-mcp info
+```
+
+Results depend on hardware, background load, and entity count. Numbers above reflect a quiet system with release builds and LTO enabled.

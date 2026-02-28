@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "agentic-contracts"
+name = "agentic-sdk"
 version = "0.2.0"
 dependencies = [
  "base64",
@@ -22,7 +22,7 @@ dependencies = [
 name = "agentic-time"
 version = "0.1.0"
 dependencies = [
- "agentic-contracts",
+ "agentic-sdk",
  "blake3",
  "chrono",
  "criterion",
