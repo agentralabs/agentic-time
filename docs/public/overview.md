@@ -29,7 +29,7 @@ Teams adopt AgenticTime because it closes the temporal reasoning gap in AI agent
 4. **Sequence** -- An ordered chain of temporal events with dependency constraints. Models workflows, pipelines, and phased rollouts.
 5. **Decay** -- A function that models information freshness over time. Supports linear, exponential, and step decay curves.
 
-## 16 Inventions
+## 16 Advanced Capabilities
 
 AgenticTime introduces 16 novel capabilities for temporal reasoning:
 

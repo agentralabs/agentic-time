@@ -86,7 +86,7 @@ Complete listing of all AgenticTime commands across CLI, MCP, and FFI surfaces.
 | `time_stats` | Get temporal statistics (counts by type and status) |
 | `time_refresh` | Refresh all statuses (update overdue deadlines, recalculate decays) |
 
-### Invention Tools
+### Advanced Tools
 
 | Tool | Description |
 |------|-------------|
