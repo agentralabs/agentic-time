@@ -1109,7 +1109,15 @@ pub async fn handle_tool_call(
             let relationship = require_str(&args, "relationship")?;
 
             let result = engine
-                .wormhole_create(label_a, time_a, desc_a, label_b, time_b, desc_b, relationship)
+                .wormhole_create(
+                    label_a,
+                    time_a,
+                    desc_a,
+                    label_b,
+                    time_b,
+                    desc_b,
+                    relationship,
+                )
                 .map_err(|e| e.to_string())?;
             serde_json::to_value(&result).map_err(|e| e.to_string())
         }

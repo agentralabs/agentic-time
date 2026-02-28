@@ -880,9 +880,8 @@ impl WriteEngine {
                 .push("High deadline density — consider spacing out deadlines".to_string());
         }
         if productive_hours < 4.0 {
-            recommendations.push(
-                "Low scheduled time — consider time-blocking more activities".to_string(),
-            );
+            recommendations
+                .push("Low scheduled time — consider time-blocking more activities".to_string());
         }
 
         Ok(SubjectiveTimeReport {
