@@ -2,8 +2,12 @@
 
 use std::io::{BufRead, BufReader, Read, Write};
 
-/// Maximum message size: 8 MiB.
-pub const MAX_MESSAGE_BYTES: usize = 8 * 1024 * 1024;
+/// Maximum frame size: 8 MiB.
+pub const MAX_CONTENT_LENGTH_BYTES: usize = 8 * 1024 * 1024;
+/// JSON-RPC stdio framing header marker.
+pub const CONTENT_LENGTH_HEADER: &str = "content-length:";
+/// Backward-compatible alias for existing transport checks.
+pub const MAX_MESSAGE_BYTES: usize = MAX_CONTENT_LENGTH_BYTES;
 
 /// Transport errors.
 #[derive(Debug, thiserror::Error)]
