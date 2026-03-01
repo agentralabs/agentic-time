@@ -1,17 +1,13 @@
-//! Hardened stdio transport — Content-Length framing, 8 MiB limit, JSON-RPC 2.0 validation.
+//! Hardened stdio transport — newline-delimited JSON-RPC 2.0 (MCP standard).
 
 use std::io::{BufRead, BufReader, Read, Write};
 
-/// Maximum content length: 8 MiB.
-pub const MAX_CONTENT_LENGTH_BYTES: usize = 8 * 1024 * 1024;
+/// Maximum message size: 8 MiB.
+pub const MAX_MESSAGE_BYTES: usize = 8 * 1024 * 1024;
 
 /// Transport errors.
 #[derive(Debug, thiserror::Error)]
 pub enum TransportError {
-    /// Missing Content-Length header.
-    #[error("Missing Content-Length header")]
-    MissingContentLength,
-
     /// Message exceeds maximum size.
     #[error("Message too large: {0} bytes (max {1})")]
     MessageTooLarge(usize, usize),
@@ -33,7 +29,7 @@ pub enum TransportError {
     Json(#[from] serde_json::Error),
 }
 
-/// Hardened stdio transport.
+/// Hardened stdio transport using newline-delimited JSON.
 pub struct StdioTransport<R: Read, W: Write> {
     reader: BufReader<R>,
     writer: W,
@@ -48,60 +44,37 @@ impl<R: Read, W: Write> StdioTransport<R, W> {
         }
     }
 
-    /// Read a single message using Content-Length framing.
+    /// Read a single newline-delimited JSON message.
     pub fn read_message(&mut self) -> Result<String, TransportError> {
-        let mut content_length: Option<usize> = None;
-
-        // Read headers until blank line
-        loop {
-            let mut line = String::new();
-            let bytes_read = self.reader.read_line(&mut line)?;
-            if bytes_read == 0 {
-                return Err(TransportError::Io(std::io::Error::new(
-                    std::io::ErrorKind::UnexpectedEof,
-                    "EOF while reading headers",
-                )));
-            }
-
-            let trimmed = line.trim();
-            if trimmed.is_empty() {
-                break;
-            }
-
-            // Case-insensitive header parsing: accept "content-length:" in any case
-            let lower = trimmed.to_lowercase();
-            if let Some(value) = lower.strip_prefix("content-length:") {
-                content_length = Some(
-                    value
-                        .trim()
-                        .parse::<usize>()
-                        .map_err(|_| TransportError::MissingContentLength)?,
-                );
-            }
+        let mut line = String::new();
+        let bytes_read = self.reader.read_line(&mut line)?;
+        if bytes_read == 0 {
+            return Err(TransportError::Io(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "EOF on stdin",
+            )));
         }
 
-        let length = content_length.ok_or(TransportError::MissingContentLength)?;
+        let trimmed = line.trim().to_string();
+        if trimmed.is_empty() {
+            // Skip blank lines and read the next one
+            return self.read_message();
+        }
 
-        // Validate size BEFORE reading body
-        if length > MAX_CONTENT_LENGTH_BYTES {
+        if trimmed.len() > MAX_MESSAGE_BYTES {
             return Err(TransportError::MessageTooLarge(
-                length,
-                MAX_CONTENT_LENGTH_BYTES,
+                trimmed.len(),
+                MAX_MESSAGE_BYTES,
             ));
         }
 
-        // Read body
-        let mut body = vec![0u8; length];
-        self.reader.read_exact(&mut body)?;
-
-        String::from_utf8(body).map_err(|_| TransportError::InvalidUtf8)
+        Ok(trimmed)
     }
 
-    /// Write a message with Content-Length header.
+    /// Write a JSON message followed by a newline.
     pub fn write_message(&mut self, content: &str) -> Result<(), TransportError> {
-        let header = format!("Content-Length: {}\r\n\r\n", content.len());
-        self.writer.write_all(header.as_bytes())?;
         self.writer.write_all(content.as_bytes())?;
+        self.writer.write_all(b"\n")?;
         self.writer.flush()?;
         Ok(())
     }
@@ -122,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_read_write_message() {
-        let input = "Content-Length: 13\r\n\r\n{\"test\":true}";
+        let input = "{\"test\":true}\n";
         let mut output = Vec::new();
 
         let mut transport =
@@ -132,16 +105,14 @@ mod tests {
     }
 
     #[test]
-    fn test_reject_oversized() {
-        let header = format!("Content-Length: {}\r\n\r\n", MAX_CONTENT_LENGTH_BYTES + 1);
+    fn test_skip_blank_lines() {
+        let input = "\n\n{\"test\":true}\n";
         let mut output = Vec::new();
 
-        let mut transport = StdioTransport::new(
-            std::io::Cursor::new(header.as_bytes().to_vec()),
-            &mut output,
-        );
-        let result = transport.read_message();
-        assert!(matches!(result, Err(TransportError::MessageTooLarge(_, _))));
+        let mut transport =
+            StdioTransport::new(std::io::Cursor::new(input.as_bytes().to_vec()), &mut output);
+        let msg = transport.read_message().unwrap();
+        assert_eq!(msg, "{\"test\":true}");
     }
 
     #[test]
