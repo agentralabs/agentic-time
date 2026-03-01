@@ -7,9 +7,8 @@
 //! - Cody: `~/.sourcegraph/cody/memory/agentic-time.md`
 
 use std::path::PathBuf;
-use std::sync::Arc;
-
-use tokio::sync::Mutex;
+use std::thread;
+use std::time::Duration;
 
 /// Client targets for ghost writing.
 const CLIENTS: &[(&str, &str, &str)] = &[
@@ -107,11 +106,9 @@ fn write_to_clients(content: &str, targets: &[(String, PathBuf)]) {
     }
 }
 
-/// Spawn the ghost writer background task (5-second sync interval).
-pub fn spawn_ghost_writer(
-    _engine: Arc<Mutex<agentic_time::WriteEngine>>,
-) -> tokio::task::JoinHandle<()> {
-    tokio::spawn(async move {
+/// Spawn the ghost writer background thread (5-second sync interval).
+pub fn spawn_ghost_writer() -> thread::JoinHandle<()> {
+    thread::spawn(move || {
         let targets = detect_all_memory_dirs();
         if targets.is_empty() {
             tracing::info!("Ghost writer: no AI tool directories detected, stopping");
@@ -123,9 +120,8 @@ pub fn spawn_ghost_writer(
             targets.len()
         );
 
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
         loop {
-            interval.tick().await;
+            thread::sleep(Duration::from_secs(5));
 
             // TODO: Read actual data from engine when wired up
             let content = format_time_context(&[], &[], &[], &[]);

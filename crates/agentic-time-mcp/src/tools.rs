@@ -440,7 +440,7 @@ fn top_matches(file: &agentic_time::TimeFile, query: &str, limit: usize) -> Vec<
 // ---------------------------------------------------------------------------
 
 /// Handle a tool call.
-pub async fn handle_tool_call(
+pub fn handle_tool_call(
     name: &str,
     args: Value,
     engine: &mut agentic_time::WriteEngine,

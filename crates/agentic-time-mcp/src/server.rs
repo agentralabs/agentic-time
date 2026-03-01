@@ -1,9 +1,6 @@
 //! MCP server — handles JSON-RPC messages over stdio.
 
 use std::path::PathBuf;
-use std::sync::Arc;
-
-use tokio::sync::Mutex;
 
 use serde_json::{json, Value};
 
@@ -350,7 +347,7 @@ fn check_server_auth() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Run the MCP server on stdio.
-pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
+pub fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     check_server_auth()?;
     let stdin = std::io::stdin().lock();
     let stdout = std::io::stdout().lock();
@@ -381,13 +378,7 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
     let mut engine = agentic_time::WriteEngine::new(file);
 
     // Spawn Ghost Writer (5-second sync to IDE memory dirs)
-    let ghost_file = if atime_path.exists() {
-        agentic_time::TimeFile::open(&atime_path)?
-    } else {
-        agentic_time::TimeFile::create(&atime_path)?
-    };
-    let ghost_engine = Arc::new(Mutex::new(agentic_time::WriteEngine::new(ghost_file)));
-    let _ghost_handle = ghost_bridge::spawn_ghost_writer(ghost_engine);
+    let _ghost_handle = ghost_bridge::spawn_ghost_writer();
 
     tracing::info!("AgenticTime MCP server started");
 
@@ -528,7 +519,7 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
                 {
                     r
                 } else {
-                    tools::handle_tool_call(&tool_name, args, &mut engine).await
+                    tools::handle_tool_call(&tool_name, args, &mut engine)
                 };
 
                 match result {

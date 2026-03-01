@@ -23,13 +23,10 @@ fn main() {
 
     match command {
         "serve" | "--stdio" => {
-            let rt = tokio::runtime::Runtime::new().expect("Failed to create tokio runtime");
-            rt.block_on(async {
-                if let Err(e) = server::run_server().await {
-                    tracing::error!("Server error: {}", e);
-                    std::process::exit(1);
-                }
-            });
+            if let Err(e) = server::run_server() {
+                tracing::error!("Server error: {}", e);
+                std::process::exit(1);
+            }
         }
         "info" => {
             println!("AgenticTime MCP Server v{}", env!("CARGO_PKG_VERSION"));
