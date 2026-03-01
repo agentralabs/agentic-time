@@ -399,7 +399,10 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
         let msg = match transport.read_message() {
             Ok(m) => m,
             Err(TransportError::Io(ref e)) if e.kind() == std::io::ErrorKind::UnexpectedEof => {
-                tracing::info!("Client disconnected");
+                tracing::info!("Client disconnected, saving before exit");
+                if let Err(e) = engine.file().save() {
+                    tracing::error!("Failed to save on disconnect: {}", e);
+                }
                 break;
             }
             Err(e) => {
@@ -529,16 +532,22 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
                 };
 
                 match result {
-                    Ok(result) => json!({
-                        "jsonrpc": "2.0",
-                        "id": id,
-                        "result": {
-                            "content": [{
-                                "type": "text",
-                                "text": serde_json::to_string_pretty(&result).unwrap_or_default()
-                            }]
+                    Ok(result) => {
+                        // Ensure state is persisted after every successful tool call
+                        if let Err(save_err) = engine.file().save() {
+                            tracing::error!("Failed to save after tool call: {}", save_err);
                         }
-                    }),
+                        json!({
+                            "jsonrpc": "2.0",
+                            "id": id,
+                            "result": {
+                                "content": [{
+                                    "type": "text",
+                                    "text": serde_json::to_string_pretty(&result).unwrap_or_default()
+                                }]
+                            }
+                        })
+                    }
                     Err(e) => json!({
                         "jsonrpc": "2.0",
                         "id": id,
