@@ -3,6 +3,7 @@
 //! Temporal reasoning for AI agents. Models durations, deadlines,
 //! schedules, sequences, and decay in a single `.atime` file.
 
+pub mod bridges;
 pub mod contracts;
 pub mod deadline;
 pub mod decay;
