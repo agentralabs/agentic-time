@@ -46,7 +46,7 @@ pub fn run(args: ScheduleArgs, atime_path: &str) {
                     Err(e) => eprintln!("Error: {}", e),
                 }
             }
-            Err(e) => eprintln!("Invalid date format: {}", e),
+            Err(e) => crate::fail(&format!("Invalid date format: {}", e)),
         },
         ScheduleCommand::Today => {
             let now = chrono::Utc::now();

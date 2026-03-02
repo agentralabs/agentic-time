@@ -59,10 +59,10 @@ pub fn run(args: DeadlineArgs, atime_path: &str) {
                         Err(e) => eprintln!("Error: {}", e),
                     }
                 }
-                Err(e) => eprintln!(
+                Err(e) => crate::fail(&format!(
                     "Invalid date format: {}. Use ISO 8601 (e.g. 2026-03-01T00:00:00Z)",
                     e
-                ),
+                )),
             }
         }
         DeadlineCommand::Complete { id } => match id.parse::<agentic_time::TemporalId>() {
