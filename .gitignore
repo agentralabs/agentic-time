@@ -1,4 +1,5 @@
 /target/
+**/target/
 **/*.rs.bk
 *.pdb
 .DS_Store
@@ -22,3 +23,7 @@ goals/
 *.fdb_latexmk
 *.synctex.gz
 python/tests/__pycache__/
+python/.coverage
+python/dist/
+python/.pytest_cache/
+npm/wasm/Cargo.lock
