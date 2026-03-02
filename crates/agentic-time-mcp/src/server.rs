@@ -181,7 +181,7 @@ fn compact_tool_list() -> Vec<Value> {
             "name": "time_core",
             "description": "Compact core temporal facade",
             "inputSchema": compact_input_schema(
-                &vec![
+                &[
                     "stats".to_string(),
                     "refresh".to_string(),
                     "ground".to_string(),
@@ -195,7 +195,7 @@ fn compact_tool_list() -> Vec<Value> {
             "name": "time_workspace",
             "description": "Compact workspace/session facade",
             "inputSchema": compact_input_schema(
-                &vec![
+                &[
                     "workspace_create".to_string(),
                     "workspace_add".to_string(),
                     "workspace_list".to_string(),

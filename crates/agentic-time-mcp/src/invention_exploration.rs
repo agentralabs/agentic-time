@@ -145,8 +145,7 @@ fn string_hash_f64(s: &str) -> f64 {
 /// Generate a deterministic pseudo-random f64 from a seed.
 fn pseudo_random(seed: f64, index: u32) -> f64 {
     let combined = seed * 1000.0 + index as f64;
-    let hash = (combined.sin() * 43758.5453).fract().abs();
-    hash
+    (combined.sin() * 43758.5453).fract().abs()
 }
 
 /// Compute risk score from impact and probability.
@@ -333,6 +332,7 @@ const HORIZON_LABELS: &[&str] = &[
 const HORIZON_HOURS: &[i64] = &[1, 24, 168, 720, 2160];
 
 /// Propagate echoes across time horizons with cascading severity.
+#[allow(clippy::too_many_arguments)]
 fn propagate_echoes(
     event: &str,
     deadlines: &[agentic_time::Deadline],
@@ -415,10 +415,8 @@ fn propagate_echoes(
                 continue;
             }
 
-            let time_proximity = 1.0
-                - ((s.start_at - now).num_hours() as f64 / hours as f64)
-                    .min(1.0)
-                    .max(0.0);
+            let time_proximity =
+                1.0 - ((s.start_at - now).num_hours() as f64 / hours as f64).clamp(0.0, 1.0);
             let base_impact = time_proximity * depth_decay * 0.6;
             let noise = pseudo_random(seed, (horizon_idx * 200 + i) as u32) * 0.1;
             let impact = (base_impact + noise).clamp(0.0, 1.0);

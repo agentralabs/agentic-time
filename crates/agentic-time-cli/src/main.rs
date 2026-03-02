@@ -415,7 +415,7 @@ fn handle_workspace(subcommand: WorkspaceCommands) {
     match subcommand {
         WorkspaceCommands::Create { workspace } => {
             state.workspaces.entry(workspace.clone()).or_default();
-            save_workspace_state(&state).unwrap_or_else(|e| fail(&format!("{}", e)));
+            save_workspace_state(&state).unwrap_or_else(|e| fail(&e.to_string()));
             println!("Workspace created: {}", workspace);
         }
         WorkspaceCommands::Add {
@@ -432,7 +432,7 @@ fn handle_workspace(subcommand: WorkspaceCommands) {
             let already = contexts.iter().any(|c| c.path == path);
             if !already {
                 contexts.push(WorkspaceContext { path, role, label });
-                save_workspace_state(&state).unwrap_or_else(|e| fail(&format!("{}", e)));
+                save_workspace_state(&state).unwrap_or_else(|e| fail(&e.to_string()));
             }
             println!("Workspace '{}' updated", workspace);
         }

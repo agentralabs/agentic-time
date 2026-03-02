@@ -145,13 +145,13 @@ fn z_score(value: f64, pop_mean: f64, pop_std: f64) -> f64 {
 }
 
 /// Compute IQR (Interquartile Range) and return (Q1, median, Q3, IQR).
-fn iqr_analysis(values: &mut Vec<f64>) -> (f64, f64, f64, f64) {
+fn iqr_analysis(values: &mut [f64]) -> (f64, f64, f64, f64) {
     if values.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
     values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     let n = values.len();
-    let median = if n % 2 == 0 {
+    let median = if n.is_multiple_of(2) {
         (values[n / 2 - 1] + values[n / 2]) / 2.0
     } else {
         values[n / 2]
@@ -390,7 +390,7 @@ fn analyze_schedule_anomalies(schedules: &[agentic_time::Schedule]) -> Vec<Value
     let mut hourly_density: HashMap<i64, u32> = HashMap::new();
     for s in &active {
         let hour = s.start_at.timestamp() / 3600;
-        let duration_hours = (s.duration_secs / 3600).max(1) as i64;
+        let duration_hours = (s.duration_secs / 3600).max(1);
         for h in hour..(hour + duration_hours) {
             *hourly_density.entry(h).or_insert(0) += 1;
         }
@@ -404,7 +404,7 @@ fn analyze_schedule_anomalies(schedules: &[agentic_time::Schedule]) -> Vec<Value
             if count > 3 {
                 let z = z_score(count as f64, density_mean, density_std);
                 if z > 1.5 {
-                    let ts = DateTime::from_timestamp(hour * 3600, 0).unwrap_or_else(|| now);
+                    let ts = DateTime::from_timestamp(hour * 3600, 0).unwrap_or(now);
                     anomalies.push(json!({
                         "type": "density_spike",
                         "severity": (sigmoid(z - 1.5) * 100.0).round() / 100.0,
@@ -1367,7 +1367,7 @@ fn handle_decay_predict(
 
     let predictions: Vec<Value> = decays
         .iter()
-        .filter(|d| specific_id.map_or(true, |sid| d.id.to_string() == sid))
+        .filter(|d| specific_id.is_none_or(|sid| d.id.to_string() == sid))
         .map(|d| project_decay(d, horizon_hours, &checkpoints, critical_threshold))
         .collect();
 

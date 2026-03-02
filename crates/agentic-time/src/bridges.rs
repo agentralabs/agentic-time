@@ -106,7 +106,12 @@ pub trait VisionBridge: Send + Sync {
 /// Bridge to agentic-comm for temporal messaging.
 pub trait CommBridge: Send + Sync {
     /// Schedule a message for future delivery
-    fn schedule_message(&self, channel_id: u64, content: &str, deliver_at: u64) -> Result<String, String> {
+    fn schedule_message(
+        &self,
+        channel_id: u64,
+        content: &str,
+        deliver_at: u64,
+    ) -> Result<String, String> {
         let _ = (channel_id, content, deliver_at);
         Err("Comm bridge not connected".to_string())
     }
@@ -130,7 +135,7 @@ impl VisionBridge for NoOpBridges {}
 impl CommBridge for NoOpBridges {}
 
 /// Configuration for which bridges are active.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct BridgeConfig {
     pub memory_enabled: bool,
     pub identity_enabled: bool,
@@ -138,19 +143,6 @@ pub struct BridgeConfig {
     pub codebase_enabled: bool,
     pub vision_enabled: bool,
     pub comm_enabled: bool,
-}
-
-impl Default for BridgeConfig {
-    fn default() -> Self {
-        Self {
-            memory_enabled: false,
-            identity_enabled: false,
-            contract_enabled: false,
-            codebase_enabled: false,
-            vision_enabled: false,
-            comm_enabled: false,
-        }
-    }
 }
 
 /// Hydra adapter trait — future orchestrator discovery interface.
@@ -244,7 +236,7 @@ mod tests {
 
     #[test]
     fn noop_bridges_default_and_clone() {
-        let b = NoOpBridges::default();
+        let b = NoOpBridges;
         let _b2 = b.clone();
     }
 }

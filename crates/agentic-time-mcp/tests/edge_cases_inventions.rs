@@ -108,8 +108,7 @@ fn test_deadline_add_missing_label() {
         "time_deadline_add",
         json!({"due_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -121,8 +120,7 @@ fn test_deadline_add_missing_due_at() {
         "time_deadline_add",
         json!({"label": "Ship MVP"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("due_at"));
 }
@@ -131,8 +129,7 @@ fn test_deadline_add_missing_due_at() {
 fn test_deadline_add_missing_all_params() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_deadline_add", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_deadline_add", json!({}), &mut engine);
     assert!(result.is_err());
 }
 
@@ -143,8 +140,7 @@ fn test_deadline_add_invalid_datetime_format() {
         "time_deadline_add",
         json!({"label": "Test", "due_at": "not-a-date"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Invalid datetime"));
 }
@@ -156,8 +152,7 @@ fn test_deadline_add_invalid_datetime_partial() {
         "time_deadline_add",
         json!({"label": "Test", "due_at": "2025-13-45T99:99:99Z"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Invalid datetime"));
 }
@@ -170,8 +165,7 @@ fn test_deadline_add_past_date_succeeds() {
         "time_deadline_add",
         json!({"label": "Already past", "due_at": past_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert!(val.get("id").is_some());
@@ -185,8 +179,7 @@ fn test_deadline_add_unknown_deadline_type() {
         "time_deadline_add",
         json!({"label": "Test", "due_at": future_dt(), "deadline_type": "imaginary"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown deadline_type"));
 }
@@ -199,8 +192,7 @@ fn test_deadline_add_all_four_types() {
             "time_deadline_add",
             json!({"label": format!("{} deadline", dtype), "due_at": future_dt(), "deadline_type": dtype}),
             &mut engine,
-        )
-        ;
+        );
         assert!(result.is_ok(), "Failed to create {} deadline", dtype);
     }
 }
@@ -212,8 +204,7 @@ fn test_deadline_add_invalid_warn_at() {
         "time_deadline_add",
         json!({"label": "Test", "due_at": future_dt(), "warn_at": "garbage"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Invalid datetime"));
 }
@@ -222,8 +213,7 @@ fn test_deadline_add_invalid_warn_at() {
 fn test_deadline_complete_missing_id() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_deadline_complete", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_deadline_complete", json!({}), &mut engine);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("id"));
 }
@@ -235,8 +225,7 @@ fn test_deadline_complete_malformed_id() {
         "time_deadline_complete",
         json!({"id": "not-a-uuid"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Invalid ID"));
 }
@@ -249,8 +238,7 @@ fn test_deadline_complete_nonexistent_id() {
         "time_deadline_complete",
         json!({"id": fake_uuid}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -258,8 +246,7 @@ fn test_deadline_complete_nonexistent_id() {
 fn test_deadline_list_empty_store() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_deadline_list", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_deadline_list", json!({}), &mut engine);
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["count"], 0);
@@ -273,8 +260,7 @@ fn test_deadline_list_unknown_status_filter() {
         "time_deadline_list",
         json!({"status": "imaginary_status"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown deadline status"));
 }
@@ -283,8 +269,7 @@ fn test_deadline_list_unknown_status_filter() {
 fn test_deadline_overdue_empty_store() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_deadline_overdue", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_deadline_overdue", json!({}), &mut engine);
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["count"], 0);
@@ -301,8 +286,7 @@ fn test_schedule_create_missing_label() {
         "time_schedule_create",
         json!({"start_at": future_dt(), "duration_minutes": 60}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -314,8 +298,7 @@ fn test_schedule_create_missing_start_at() {
         "time_schedule_create",
         json!({"label": "Meeting", "duration_minutes": 60}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("start_at"));
 }
@@ -327,8 +310,7 @@ fn test_schedule_create_missing_duration() {
         "time_schedule_create",
         json!({"label": "Meeting", "start_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("duration_minutes"));
 }
@@ -340,8 +322,7 @@ fn test_schedule_create_zero_duration() {
         "time_schedule_create",
         json!({"label": "Zero event", "start_at": future_dt(), "duration_minutes": 0}),
         &mut engine,
-    )
-    ;
+    );
     // Zero duration may be allowed by the engine; just verify we get a result
     assert!(result.is_ok());
     let val = result.unwrap();
@@ -355,8 +336,7 @@ fn test_schedule_create_negative_duration() {
         "time_schedule_create",
         json!({"label": "Negative", "start_at": future_dt(), "duration_minutes": -30}),
         &mut engine,
-    )
-    ;
+    );
     // Negative duration: the engine may accept or reject, but either way it should not panic
     // If accepted, duration_minutes will be negative in the response
     let _ = result;
@@ -369,8 +349,7 @@ fn test_schedule_create_unknown_priority() {
         "time_schedule_create",
         json!({"label": "Test", "start_at": future_dt(), "duration_minutes": 30, "priority": "ultra"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown priority"));
 }
@@ -387,8 +366,7 @@ fn test_schedule_create_unknown_recurrence_pattern() {
             "recurrence": {"pattern": "biannually"}
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown recurrence pattern"));
 }
@@ -400,8 +378,7 @@ fn test_schedule_reschedule_missing_id() {
         "time_schedule_reschedule",
         json!({"new_start_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("id"));
 }
@@ -414,8 +391,7 @@ fn test_schedule_reschedule_nonexistent_id() {
         "time_schedule_reschedule",
         json!({"id": fake_uuid, "new_start_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -428,8 +404,7 @@ fn test_schedule_range_end_before_start() {
         "time_schedule_range",
         json!({"start": start, "end": end}),
         &mut engine,
-    )
-    ;
+    );
     // End before start: should return empty or error, not panic
     if let Ok(val) = &result {
         assert_eq!(val["count"], 0);
@@ -443,8 +418,7 @@ fn test_schedule_available_empty_store() {
         "time_schedule_available",
         json!({"start": near_future_dt(), "end": far_future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     // With nothing scheduled, entire range should be available
@@ -458,8 +432,7 @@ fn test_schedule_conflicts_empty_store() {
         "time_schedule_conflicts",
         json!({"start_at": near_future_dt(), "duration_minutes": 60}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["count"], 0);
@@ -476,8 +449,7 @@ fn test_sequence_create_missing_label() {
         "time_sequence_create",
         json!({"steps": [{"label": "A"}]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -489,8 +461,7 @@ fn test_sequence_create_missing_steps() {
         "time_sequence_create",
         json!({"label": "Pipeline"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("steps"));
 }
@@ -502,8 +473,7 @@ fn test_sequence_create_empty_steps_array() {
         "time_sequence_create",
         json!({"label": "Empty", "steps": []}),
         &mut engine,
-    )
-    ;
+    );
     // Empty steps: engine may allow or reject but must not panic
     if let Ok(val) = &result {
         assert_eq!(val["step_count"], 0);
@@ -517,8 +487,7 @@ fn test_sequence_create_step_missing_label() {
         "time_sequence_create",
         json!({"label": "Pipeline", "steps": [{"duration_minutes": 10}]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -530,8 +499,7 @@ fn test_sequence_create_single_step() {
         "time_sequence_create",
         json!({"label": "Single", "steps": [{"label": "Only step"}]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 1);
@@ -541,8 +509,7 @@ fn test_sequence_create_single_step() {
 fn test_sequence_advance_missing_id() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_sequence_advance", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_sequence_advance", json!({}), &mut engine);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("id"));
 }
@@ -555,8 +522,7 @@ fn test_sequence_advance_nonexistent_id() {
         "time_sequence_advance",
         json!({"id": fake_uuid}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -569,7 +535,7 @@ fn test_sequence_advance_past_completion() {
         json!({"label": "Short", "steps": [{"label": "Only"}]}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let id = create_result["id"].as_str().unwrap().to_string();
 
     // Advance once to complete
@@ -577,8 +543,7 @@ fn test_sequence_advance_past_completion() {
         "time_sequence_advance",
         json!({"id": id}),
         &mut engine,
-    )
-    ;
+    );
     assert!(adv1.is_ok());
 
     // Advance again past completion — engine treats as no-op (does not error)
@@ -586,8 +551,7 @@ fn test_sequence_advance_past_completion() {
         "time_sequence_advance",
         json!({"id": id}),
         &mut engine,
-    )
-    ;
+    );
     // The engine silently handles advancing past completion
     // (complete_current_step is a no-op when current_step >= steps.len())
     assert!(adv2.is_ok());
@@ -602,8 +566,7 @@ fn test_sequence_advance_past_completion() {
 fn test_sequence_status_missing_id() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_sequence_status", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_sequence_status", json!({}), &mut engine);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("id"));
 }
@@ -616,8 +579,7 @@ fn test_sequence_status_nonexistent_id() {
         "time_sequence_status",
         json!({"id": fake_uuid}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -632,8 +594,7 @@ fn test_decay_create_linear() {
         "time_decay_create",
         json!({"label": "Linear decay", "initial_value": 100.0, "decay_type": "linear", "rate": 0.5}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "linear");
@@ -647,8 +608,7 @@ fn test_decay_create_exponential() {
         "time_decay_create",
         json!({"label": "Exp decay", "initial_value": 50.0, "decay_type": "exponential", "rate": 0.01}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "exponential");
@@ -661,8 +621,7 @@ fn test_decay_create_half_life() {
         "time_decay_create",
         json!({"label": "HL decay", "initial_value": 200.0, "decay_type": "half_life", "half_life_hours": 12.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "half_life");
@@ -675,8 +634,7 @@ fn test_decay_create_step() {
         "time_decay_create",
         json!({"label": "Step decay", "initial_value": 10.0, "decay_type": "step", "rate": 1.0, "half_life_hours": 2.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "step");
@@ -689,8 +647,7 @@ fn test_decay_create_unknown_type() {
         "time_decay_create",
         json!({"label": "Bad", "initial_value": 10.0, "decay_type": "quantum"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown decay_type"));
 }
@@ -702,8 +659,7 @@ fn test_decay_create_missing_initial_value() {
         "time_decay_create",
         json!({"label": "No value"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("initial_value"));
 }
@@ -715,8 +671,7 @@ fn test_decay_create_zero_initial_value() {
         "time_decay_create",
         json!({"label": "Zero", "initial_value": 0.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["initial_value"], 0.0);
@@ -729,8 +684,7 @@ fn test_decay_create_negative_initial_value() {
         "time_decay_create",
         json!({"label": "Negative", "initial_value": -50.0}),
         &mut engine,
-    )
-    ;
+    );
     // Negative initial value: engine may allow it
     assert!(result.is_ok());
 }
@@ -743,8 +697,7 @@ fn test_decay_value_nonexistent_id() {
         "time_decay_value",
         json!({"id": fake_uuid}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -755,8 +708,7 @@ fn test_decay_alert_missing_threshold() {
         "time_decay_alert",
         json!({"within_hours": 24.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("threshold"));
 }
@@ -772,8 +724,7 @@ fn test_duration_estimate_missing_label() {
         "time_duration_estimate",
         json!({"expected_minutes": 60}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -785,8 +736,7 @@ fn test_duration_estimate_missing_expected() {
         "time_duration_estimate",
         json!({"label": "Task A"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("expected_minutes"));
 }
@@ -798,8 +748,7 @@ fn test_duration_estimate_zero_minutes() {
         "time_duration_estimate",
         json!({"label": "Instant", "expected_minutes": 0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["expected_minutes"], 0);
@@ -818,8 +767,7 @@ fn test_duration_estimate_with_pert_values() {
             "confidence": 0.95
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["optimistic_minutes"], 30);
@@ -836,8 +784,7 @@ fn test_duration_estimate_confidence_boundary_zero() {
         "time_duration_estimate",
         json!({"label": "Zero conf", "expected_minutes": 30, "confidence": 0.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["confidence"], 0.0);
@@ -850,8 +797,7 @@ fn test_duration_estimate_confidence_boundary_one() {
         "time_duration_estimate",
         json!({"label": "Full conf", "expected_minutes": 30, "confidence": 1.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["confidence"], 1.0);
@@ -864,8 +810,7 @@ fn test_duration_aggregate_empty_ids() {
         "time_duration_aggregate",
         json!({"ids": []}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("No valid IDs"));
 }
@@ -877,8 +822,7 @@ fn test_duration_aggregate_invalid_ids() {
         "time_duration_aggregate",
         json!({"ids": ["not-a-uuid", "also-bad"]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("No valid IDs"));
 }
@@ -890,8 +834,7 @@ fn test_duration_aggregate_invalid_ids() {
 #[test]
 fn test_stats_empty_store() {
     let (_dir, mut engine) = fresh_engine();
-    let result =
-        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine);
+    let result = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine);
     assert!(result.is_ok());
     // The stats response should be valid JSON
     let val = result.unwrap();
@@ -905,8 +848,7 @@ fn test_stats_with_null_args() {
         "time_stats",
         serde_json::Value::Null,
         &mut engine,
-    )
-    ;
+    );
     // Should handle null args gracefully
     assert!(result.is_ok());
 }
@@ -914,8 +856,7 @@ fn test_stats_with_null_args() {
 #[test]
 fn test_refresh_empty_store() {
     let (_dir, mut engine) = fresh_engine();
-    let result =
-        agentic_time_mcp::tools::handle_tool_call("time_refresh", json!({}), &mut engine);
+    let result = agentic_time_mcp::tools::handle_tool_call("time_refresh", json!({}), &mut engine);
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["deadlines_updated"], 0);
@@ -927,8 +868,7 @@ fn test_refresh_empty_store() {
 fn test_unknown_tool_name() {
     let (_dir, mut engine) = fresh_engine();
     let result =
-        agentic_time_mcp::tools::handle_tool_call("time_teleport_to_mars", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_teleport_to_mars", json!({}), &mut engine);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Unknown tool"));
 }
@@ -952,8 +892,7 @@ fn test_deadline_add_unicode_label() {
         "time_deadline_add",
         json!({"label": "Ship MVP \u{1F680}\u{2728} deadline", "due_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert!(val["label"].as_str().unwrap().contains("\u{1F680}"));
@@ -970,8 +909,7 @@ fn test_schedule_create_unicode_label() {
             "duration_minutes": 30
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(
@@ -994,8 +932,7 @@ fn test_sequence_create_special_chars_in_steps() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 3);
@@ -1027,14 +964,12 @@ fn test_rapid_fire_50_deadline_add_then_list() {
             "time_deadline_add",
             json!({"label": format!("Deadline #{}", i), "due_at": due}),
             &mut engine,
-        )
-        ;
+        );
         assert!(result.is_ok(), "Failed to add deadline #{}", i);
     }
 
     let list_result =
-        agentic_time_mcp::tools::handle_tool_call("time_deadline_list", json!({}), &mut engine)
-            ;
+        agentic_time_mcp::tools::handle_tool_call("time_deadline_list", json!({}), &mut engine);
     assert!(list_result.is_ok());
     let val = list_result.unwrap();
     assert_eq!(val["count"], 50);
@@ -1054,8 +989,7 @@ fn test_rapid_fire_mixed_entity_creation() {
             "time_deadline_add",
             json!({"label": format!("DL-{}", i), "due_at": due}),
             &mut engine,
-        )
-        ;
+        );
         assert!(r.is_ok());
     }
 
@@ -1069,8 +1003,7 @@ fn test_rapid_fire_mixed_entity_creation() {
             "time_schedule_create",
             json!({"label": format!("SCH-{}", i), "start_at": start, "duration_minutes": 30}),
             &mut engine,
-        )
-        ;
+        );
         assert!(r.is_ok());
     }
 
@@ -1080,8 +1013,7 @@ fn test_rapid_fire_mixed_entity_creation() {
             "time_sequence_create",
             json!({"label": format!("SEQ-{}", i), "steps": [{"label": "A"}, {"label": "B"}]}),
             &mut engine,
-        )
-        ;
+        );
         assert!(r.is_ok());
     }
 
@@ -1091,8 +1023,7 @@ fn test_rapid_fire_mixed_entity_creation() {
             "time_decay_create",
             json!({"label": format!("DEC-{}", i), "initial_value": 100.0}),
             &mut engine,
-        )
-        ;
+        );
         assert!(r.is_ok());
     }
 
@@ -1102,14 +1033,13 @@ fn test_rapid_fire_mixed_entity_creation() {
             "time_duration_estimate",
             json!({"label": format!("DUR-{}", i), "expected_minutes": 30 + i}),
             &mut engine,
-        )
-        ;
+        );
         assert!(r.is_ok());
     }
 
     // Verify stats reflect everything
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert!(stats.is_object());
 }
 
@@ -1133,21 +1063,21 @@ fn test_workflow_deadline_full_lifecycle() {
         }),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let id = add_result["id"].as_str().unwrap().to_string();
     assert_eq!(add_result["status"], "pending");
 
     // 2. List deadlines and verify it's there
     let list_result =
         agentic_time_mcp::tools::handle_tool_call("time_deadline_list", json!({}), &mut engine)
-                        .unwrap();
+            .unwrap();
     assert_eq!(list_result["count"], 1);
     assert_eq!(list_result["deadlines"][0]["label"], "Launch product");
 
     // 3. Check overdue (should be empty, deadline is in the future)
     let overdue_result =
         agentic_time_mcp::tools::handle_tool_call("time_deadline_overdue", json!({}), &mut engine)
-                        .unwrap();
+            .unwrap();
     assert_eq!(overdue_result["count"], 0);
 
     // 4. Complete the deadline
@@ -1156,7 +1086,7 @@ fn test_workflow_deadline_full_lifecycle() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(complete_result["status"], "completed");
 
     // 5. List completed deadlines
@@ -1165,7 +1095,7 @@ fn test_workflow_deadline_full_lifecycle() {
         json!({"status": "completed"}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(completed_list["count"], 1);
 }
 
@@ -1187,7 +1117,7 @@ fn test_workflow_schedule_create_and_reschedule() {
         }),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let id = create_result["id"].as_str().unwrap().to_string();
     assert_eq!(create_result["status"], "scheduled");
     assert_eq!(create_result["duration_minutes"], 15);
@@ -1198,7 +1128,7 @@ fn test_workflow_schedule_create_and_reschedule() {
         json!({"start_at": original_start, "duration_minutes": 60}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert!(conflict_result["count"].as_u64().unwrap() >= 1);
 
     // 3. Reschedule to a new time
@@ -1208,7 +1138,7 @@ fn test_workflow_schedule_create_and_reschedule() {
         json!({"id": id, "new_start_at": new_start}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(reschedule_result["status"], "rescheduled");
 
     // 4. Original slot should now be free
@@ -1221,7 +1151,7 @@ fn test_workflow_schedule_create_and_reschedule() {
         }),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert!(avail_result["count"].as_u64().unwrap() >= 1);
 }
 
@@ -1242,7 +1172,7 @@ fn test_workflow_sequence_full_completion() {
         }),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let id = create_result["id"].as_str().unwrap().to_string();
     assert_eq!(create_result["step_count"], 3);
 
@@ -1252,7 +1182,7 @@ fn test_workflow_sequence_full_completion() {
         json!({"id": &id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(status1["current_step"], 0);
     assert_eq!(status1["total_steps"], 3);
 
@@ -1262,7 +1192,7 @@ fn test_workflow_sequence_full_completion() {
         json!({"id": &id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(adv1["current_step"], 1);
 
     let adv2 = agentic_time_mcp::tools::handle_tool_call(
@@ -1270,7 +1200,7 @@ fn test_workflow_sequence_full_completion() {
         json!({"id": &id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(adv2["current_step"], 2);
 
     let adv3 = agentic_time_mcp::tools::handle_tool_call(
@@ -1278,7 +1208,7 @@ fn test_workflow_sequence_full_completion() {
         json!({"id": &id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     // After advancing past last step, status should be Completed
     assert!(
         adv3["status"].as_str().unwrap().contains("Completed")
@@ -1290,8 +1220,7 @@ fn test_workflow_sequence_full_completion() {
         "time_sequence_advance",
         json!({"id": &id}),
         &mut engine,
-    )
-    ;
+    );
     // The engine silently handles advancing past completion
     assert!(adv4.is_ok());
     let val4 = adv4.unwrap();
@@ -1312,8 +1241,7 @@ fn test_deadline_add_with_tags() {
         "time_deadline_add",
         json!({"label": "Tagged", "due_at": future_dt(), "tags": ["a", "b", "c"]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1324,8 +1252,7 @@ fn test_deadline_add_with_empty_tags() {
         "time_deadline_add",
         json!({"label": "No tags", "due_at": future_dt(), "tags": []}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1336,8 +1263,7 @@ fn test_deadline_add_label_is_number_fails() {
         "time_deadline_add",
         json!({"label": 42, "due_at": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("label"));
 }
@@ -1349,8 +1275,7 @@ fn test_deadline_add_due_at_is_number_fails() {
         "time_deadline_add",
         json!({"label": "Test", "due_at": 123456}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("due_at"));
 }
@@ -1368,8 +1293,7 @@ fn test_schedule_create_all_priorities() {
                 "priority": priority
             }),
             &mut engine,
-        )
-        ;
+        );
         assert!(result.is_ok(), "Failed for priority: {}", priority);
     }
 }
@@ -1386,8 +1310,7 @@ fn test_schedule_create_with_daily_recurrence() {
             "recurrence": {"pattern": "daily", "interval": 1}
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1403,8 +1326,7 @@ fn test_schedule_create_with_weekly_recurrence() {
             "recurrence": {"pattern": "weekly", "interval": 2}
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1420,8 +1342,7 @@ fn test_schedule_create_with_monthly_recurrence() {
             "recurrence": {"pattern": "monthly"}
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1432,8 +1353,7 @@ fn test_schedule_range_missing_start() {
         "time_schedule_range",
         json!({"end": future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("start"));
 }
@@ -1445,8 +1365,7 @@ fn test_schedule_range_missing_end() {
         "time_schedule_range",
         json!({"start": near_future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("end"));
 }
@@ -1458,8 +1377,7 @@ fn test_schedule_conflicts_missing_duration() {
         "time_schedule_conflicts",
         json!({"start_at": near_future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("duration_minutes"));
 }
@@ -1471,8 +1389,7 @@ fn test_decay_alert_missing_within_hours() {
         "time_decay_alert",
         json!({"threshold": 50.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("within_hours"));
 }
@@ -1484,8 +1401,7 @@ fn test_decay_alert_empty_store() {
         "time_decay_alert",
         json!({"threshold": 50.0, "within_hours": 24.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["total_alerts"], 0);
@@ -1507,8 +1423,7 @@ fn test_decay_value_malformed_id() {
         "time_decay_value",
         json!({"id": "zzzz-not-uuid"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Invalid ID"));
 }
@@ -1520,8 +1435,7 @@ fn test_duration_aggregate_missing_ids() {
         "time_duration_aggregate",
         json!({}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("ids"));
 }
@@ -1536,13 +1450,13 @@ fn test_duration_aggregate_two_estimates() {
         json!({"label": "Task A", "expected_minutes": 30}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let e2 = agentic_time_mcp::tools::handle_tool_call(
         "time_duration_estimate",
         json!({"label": "Task B", "expected_minutes": 60}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     let id1 = e1["id"].as_str().unwrap();
     let id2 = e2["id"].as_str().unwrap();
@@ -1551,8 +1465,7 @@ fn test_duration_aggregate_two_estimates() {
         "time_duration_aggregate",
         json!({"ids": [id1, id2]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(agg.is_ok());
     let val = agg.unwrap();
     assert_eq!(val["aggregated_count"], 2);
@@ -1574,7 +1487,7 @@ fn test_deadline_list_with_due_within_filter() {
         json!({"label": "Soon", "due_at": due_3d}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Add a deadline 30 days from now
     let due_30d = chrono::Utc::now()
@@ -1586,7 +1499,7 @@ fn test_deadline_list_with_due_within_filter() {
         json!({"label": "Later", "due_at": due_30d}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Query within 7 days - should get only the first one
     let result = agentic_time_mcp::tools::handle_tool_call(
@@ -1594,7 +1507,7 @@ fn test_deadline_list_with_due_within_filter() {
         json!({"due_within": "P7D"}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(result["count"], 1);
     assert_eq!(result["deadlines"][0]["label"], "Soon");
 }
@@ -1611,8 +1524,7 @@ fn test_schedule_create_flexible_false() {
             "flexible": false
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1623,8 +1535,7 @@ fn test_deadline_add_consequence_empty_string() {
         "time_deadline_add",
         json!({"label": "No consequence", "due_at": future_dt(), "consequence": ""}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1643,8 +1554,7 @@ fn test_sequence_create_with_depends_on() {
             "allow_parallel": true
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 3);
@@ -1663,8 +1573,7 @@ fn test_sequence_create_with_duration_on_steps() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 
     let id = result.unwrap()["id"].as_str().unwrap().to_string();
@@ -1675,7 +1584,7 @@ fn test_sequence_create_with_duration_on_steps() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     assert_eq!(status["total_steps"], 2);
     // Total duration should be 30 min = 30 in minutes
     assert_eq!(status["total_duration_minutes"], 30);
@@ -1688,8 +1597,7 @@ fn test_decay_create_with_floor() {
         "time_decay_create",
         json!({"label": "Floored", "initial_value": 100.0, "floor": 25.0}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["floor"], 25.0);
@@ -1702,8 +1610,7 @@ fn test_decay_create_with_tags() {
         "time_decay_create",
         json!({"label": "Tagged decay", "initial_value": 80.0, "tags": ["memory", "context"]}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1715,7 +1622,7 @@ fn test_decay_value_after_creation() {
         json!({"label": "Fresh", "initial_value": 100.0}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let id = create_result["id"].as_str().unwrap().to_string();
 
     let value_result = agentic_time_mcp::tools::handle_tool_call(
@@ -1723,7 +1630,7 @@ fn test_decay_value_after_creation() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Just created, so current_value should be very close to initial
     let current = value_result["current_value"].as_f64().unwrap();
@@ -1744,7 +1651,7 @@ fn test_refresh_after_adding_entities() {
         json!({"label": "Overdue", "due_at": past_dt()}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Add a decay model
     agentic_time_mcp::tools::handle_tool_call(
@@ -1752,7 +1659,7 @@ fn test_refresh_after_adding_entities() {
         json!({"label": "Decaying", "initial_value": 100.0}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Refresh
     let refresh_result =
@@ -1772,8 +1679,7 @@ fn test_schedule_reschedule_missing_new_start_at() {
         "time_schedule_reschedule",
         json!({"id": fake_uuid}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("new_start_at"));
 }
@@ -1793,8 +1699,7 @@ fn test_deadline_add_with_valid_warn_at() {
         "time_deadline_add",
         json!({"label": "Warned deadline", "due_at": due, "warn_at": warn}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
 }
 
@@ -1805,8 +1710,7 @@ fn test_duration_estimate_negative_expected() {
         "time_duration_estimate",
         json!({"label": "Negative", "expected_minutes": -10}),
         &mut engine,
-    )
-    ;
+    );
     // Negative expected_minutes: the tool may accept it (as i64)
     // or the engine may reject it. Either way, must not panic.
     let _ = result;
@@ -1820,8 +1724,7 @@ fn test_duration_estimate_defaults_for_pert() {
         "time_duration_estimate",
         json!({"label": "Defaults only", "expected_minutes": 100}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     // Optimistic defaults to 60% of expected = 60
@@ -1838,8 +1741,7 @@ fn test_deadline_complete_id_is_null() {
         "time_deadline_complete",
         json!({"id": null}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -1850,8 +1752,7 @@ fn test_sequence_advance_id_is_empty_string() {
         "time_sequence_advance",
         json!({"id": ""}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_err());
 }
 
@@ -1862,8 +1763,7 @@ fn test_schedule_available_zero_min_duration() {
         "time_schedule_available",
         json!({"start": near_future_dt(), "end": far_future_dt(), "min_duration_minutes": 0}),
         &mut engine,
-    )
-    ;
+    );
     // Zero min duration: should still work or error gracefully
     let _ = result;
 }
@@ -1875,8 +1775,7 @@ fn test_schedule_range_empty_store() {
         "time_schedule_range",
         json!({"start": near_future_dt(), "end": far_future_dt()}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["count"], 0);
@@ -1889,8 +1788,7 @@ fn test_deadline_list_status_pending_empty() {
         "time_deadline_list",
         json!({"status": "pending"}),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["count"], 0);
@@ -1923,8 +1821,7 @@ fn test_memory_deadline_microsecond_precision() {
             "tags": ["memory", "precision"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(
         result.is_ok(),
         "Microsecond-precision timestamp should be accepted"
@@ -1948,8 +1845,7 @@ fn test_memory_decay_staleness_half_life() {
             "half_life_hours": 168.0
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "half_life");
@@ -1961,8 +1857,7 @@ fn test_memory_decay_staleness_half_life() {
         "time_decay_value",
         json!({"id": id}),
         &mut engine,
-    )
-    ;
+    );
     assert!(value_result.is_ok());
     let vval = value_result.unwrap();
     // At t=0, value should be very close to initial
@@ -1990,10 +1885,10 @@ fn test_memory_stats_after_entities() {
         json!({"label": "mem-cache-expiry", "due_at": future_dt()}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert_eq!(stats["decay_count"], 1, "Should have 1 decay model");
     assert_eq!(stats["deadline_count"], 1, "Should have 1 deadline");
 }
@@ -2014,8 +1909,7 @@ fn test_memory_sequence_session_workflow() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 4);
@@ -2027,8 +1921,7 @@ fn test_memory_sequence_session_workflow() {
             "time_sequence_advance",
             json!({"id": id}),
             &mut engine,
-        )
-        ;
+        );
         assert!(
             adv.is_ok(),
             "Advance to step {} should succeed",
@@ -2042,7 +1935,7 @@ fn test_memory_sequence_session_workflow() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let status_str = status["status"].as_str().unwrap();
     assert!(
         status_str.contains("Complete") || status_str.contains("complete"),
@@ -2065,8 +1958,7 @@ fn test_memory_duration_consolidation() {
             "confidence": 0.85
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "memory-consolidation");
@@ -2105,8 +1997,7 @@ fn test_identity_deadline_trust_grant_expiry() {
             "tags": ["identity", "trust"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["status"], "pending");
@@ -2126,8 +2017,7 @@ fn test_identity_decay_competence_freshness_exponential() {
             "rate": 0.02
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "exponential");
@@ -2150,8 +2040,7 @@ fn test_identity_sequence_workflow() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 4);
@@ -2163,7 +2052,7 @@ fn test_identity_sequence_workflow() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     // After one advance, current step should be index 1 (sign-certificate)
     assert!(adv.get("current_step").is_some() || adv.get("status").is_some());
 }
@@ -2183,8 +2072,7 @@ fn test_identity_schedule_heartbeat_daily() {
             "tags": ["identity", "heartbeat"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "identity-heartbeat");
@@ -2205,8 +2093,7 @@ fn test_identity_duration_receipt_verification() {
             "confidence": 0.90
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "receipt-verification");
@@ -2238,8 +2125,7 @@ fn test_vision_deadline_capture_expiry_7_day() {
             "tags": ["vision", "capture"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["status"], "pending");
@@ -2259,8 +2145,7 @@ fn test_vision_decay_visual_similarity_linear() {
             "rate": 0.5
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "linear");
@@ -2273,7 +2158,7 @@ fn test_vision_decay_visual_similarity_linear() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let current = vr["current_value"].as_f64().unwrap();
     assert!(
         current >= 99.0,
@@ -2298,8 +2183,7 @@ fn test_vision_sequence_capture_compare_diff_report() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 4);
@@ -2312,7 +2196,7 @@ fn test_vision_sequence_capture_compare_diff_report() {
             json!({"id": id}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     let status = agentic_time_mcp::tools::handle_tool_call(
@@ -2320,7 +2204,7 @@ fn test_vision_sequence_capture_compare_diff_report() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     let s = status["status"].as_str().unwrap();
     assert!(
         s.contains("Complete") || s.contains("complete"),
@@ -2343,8 +2227,7 @@ fn test_vision_schedule_periodic_screenshot() {
             "tags": ["vision", "automation"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "periodic-screenshot");
@@ -2366,8 +2249,7 @@ fn test_vision_duration_ocr_processing() {
             "confidence": 0.80
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "ocr-processing");
@@ -2400,8 +2282,7 @@ fn test_codebase_deadline_code_review_with_warn_at() {
             "tags": ["codebase", "review"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["status"], "pending");
@@ -2421,8 +2302,7 @@ fn test_codebase_decay_symbol_relevance_half_life() {
             "half_life_hours": 720.0
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["decay_type"], "half_life");
@@ -2445,8 +2325,7 @@ fn test_codebase_sequence_parse_index_query_impact() {
             ]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["step_count"], 4);
@@ -2459,7 +2338,7 @@ fn test_codebase_sequence_parse_index_query_impact() {
             json!({"id": id}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     // Check status - should be in progress
@@ -2468,7 +2347,7 @@ fn test_codebase_sequence_parse_index_query_impact() {
         json!({"id": id}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
     // After 2 of 4 steps, should not be completed yet
     let s = status["status"].as_str().unwrap();
     assert!(
@@ -2493,8 +2372,7 @@ fn test_codebase_schedule_incremental_reindex() {
             "tags": ["codebase", "indexing"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "incremental-reindex");
@@ -2515,8 +2393,7 @@ fn test_codebase_duration_graph_traversal() {
             "confidence": 0.70
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(result.is_ok());
     let val = result.unwrap();
     assert_eq!(val["label"], "graph-traversal");
@@ -2548,8 +2425,7 @@ fn test_multi_deadline_plus_schedule_same_event() {
             "tags": ["release"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(dl.is_ok());
 
     // Create a schedule for the same event
@@ -2562,13 +2438,12 @@ fn test_multi_deadline_plus_schedule_same_event() {
             "tags": ["release"]
         }),
         &mut engine,
-    )
-    ;
+    );
     assert!(sch.is_ok());
 
     // Both should exist in stats
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert_eq!(stats["deadline_count"], 1);
     assert_eq!(stats["schedule_count"], 1);
 }
@@ -2586,7 +2461,7 @@ fn test_multi_sequence_plus_multiple_deadlines() {
         }),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Create 3 deadlines for each phase
     for (i, phase) in ["build-deadline", "test-deadline", "deploy-deadline"]
@@ -2602,11 +2477,11 @@ fn test_multi_sequence_plus_multiple_deadlines() {
             json!({"label": phase, "due_at": due}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert_eq!(stats["sequence_count"], 1, "Should have 1 sequence");
     assert_eq!(stats["deadline_count"], 3, "Should have 3 deadlines");
 }
@@ -2621,7 +2496,7 @@ fn test_multi_one_of_each_entity_type() {
         json!({"label": "entity-deadline", "due_at": future_dt()}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // 2. Schedule
     agentic_time_mcp::tools::handle_tool_call(
@@ -2629,7 +2504,7 @@ fn test_multi_one_of_each_entity_type() {
         json!({"label": "entity-schedule", "start_at": near_future_dt(), "duration_minutes": 30}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // 3. Sequence
     agentic_time_mcp::tools::handle_tool_call(
@@ -2637,7 +2512,7 @@ fn test_multi_one_of_each_entity_type() {
         json!({"label": "entity-sequence", "steps": [{"label": "step-1"}]}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // 4. Decay
     agentic_time_mcp::tools::handle_tool_call(
@@ -2645,7 +2520,7 @@ fn test_multi_one_of_each_entity_type() {
         json!({"label": "entity-decay", "initial_value": 50.0}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // 5. Duration
     agentic_time_mcp::tools::handle_tool_call(
@@ -2653,11 +2528,11 @@ fn test_multi_one_of_each_entity_type() {
         json!({"label": "entity-duration", "expected_minutes": 10}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Verify all 5 entity types present
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert_eq!(stats["deadline_count"], 1, "1 deadline");
     assert_eq!(stats["schedule_count"], 1, "1 schedule");
     assert_eq!(stats["sequence_count"], 1, "1 sequence");
@@ -2675,7 +2550,7 @@ fn test_multi_refresh_after_mixed_creation() {
         json!({"label": "refresh-dl", "due_at": future_dt()}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     agentic_time_mcp::tools::handle_tool_call(
         "time_decay_create",
@@ -2689,11 +2564,10 @@ fn test_multi_refresh_after_mixed_creation() {
         json!({"label": "refresh-sched", "start_at": near_future_dt(), "duration_minutes": 20}),
         &mut engine,
     )
-        .unwrap();
+    .unwrap();
 
     // Run time_refresh - should process without errors
-    let refresh =
-        agentic_time_mcp::tools::handle_tool_call("time_refresh", json!({}), &mut engine);
+    let refresh = agentic_time_mcp::tools::handle_tool_call("time_refresh", json!({}), &mut engine);
     assert!(refresh.is_ok());
     let val = refresh.unwrap();
     // Non-negative counts
@@ -2720,7 +2594,7 @@ fn test_multi_10_mixed_entities_stats_consistency() {
             json!({"label": format!("dl-{}", i), "due_at": due}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     for i in 0..2 {
@@ -2733,7 +2607,7 @@ fn test_multi_10_mixed_entities_stats_consistency() {
             json!({"label": format!("sch-{}", i), "start_at": start, "duration_minutes": 15}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     for i in 0..2 {
@@ -2742,7 +2616,7 @@ fn test_multi_10_mixed_entities_stats_consistency() {
             json!({"label": format!("seq-{}", i), "steps": [{"label": "a"}, {"label": "b"}]}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     for i in 0..2 {
@@ -2751,7 +2625,7 @@ fn test_multi_10_mixed_entities_stats_consistency() {
             json!({"label": format!("dec-{}", i), "initial_value": 100.0}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     for i in 0..2 {
@@ -2760,12 +2634,12 @@ fn test_multi_10_mixed_entities_stats_consistency() {
             json!({"label": format!("dur-{}", i), "expected_minutes": 30 + i}),
             &mut engine,
         )
-                .unwrap();
+        .unwrap();
     }
 
     // Verify counts
-    let stats = agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine)
-                .unwrap();
+    let stats =
+        agentic_time_mcp::tools::handle_tool_call("time_stats", json!({}), &mut engine).unwrap();
     assert_eq!(stats["deadline_count"], 2, "2 deadlines");
     assert_eq!(stats["schedule_count"], 2, "2 schedules");
     assert_eq!(stats["sequence_count"], 2, "2 sequences");

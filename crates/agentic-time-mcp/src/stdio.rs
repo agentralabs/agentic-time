@@ -1,4 +1,4 @@
-//! Hardened stdio transport — newline-delimited JSON-RPC 2.0 (MCP standard).
+//! Hardened stdio transport — Content-Length framed JSON-RPC 2.0 (MCP standard).
 
 use std::io::{BufRead, BufReader, Read, Write};
 
@@ -33,7 +33,7 @@ pub enum TransportError {
     Json(#[from] serde_json::Error),
 }
 
-/// Hardened stdio transport using newline-delimited JSON.
+/// Hardened stdio transport using Content-Length framing.
 pub struct StdioTransport<R: Read, W: Write> {
     reader: BufReader<R>,
     writer: W,
@@ -48,37 +48,62 @@ impl<R: Read, W: Write> StdioTransport<R, W> {
         }
     }
 
-    /// Read a single newline-delimited JSON message.
+    /// Read a single Content-Length framed JSON message.
     pub fn read_message(&mut self) -> Result<String, TransportError> {
-        let mut line = String::new();
-        let bytes_read = self.reader.read_line(&mut line)?;
-        if bytes_read == 0 {
-            return Err(TransportError::Io(std::io::Error::new(
-                std::io::ErrorKind::UnexpectedEof,
-                "EOF on stdin",
-            )));
+        let mut content_length: Option<usize> = None;
+
+        // Parse headers until the terminating empty line.
+        loop {
+            let mut line = String::new();
+            let bytes_read = self.reader.read_line(&mut line)?;
+            if bytes_read == 0 {
+                return Err(TransportError::Io(std::io::Error::new(
+                    std::io::ErrorKind::UnexpectedEof,
+                    "EOF while reading headers",
+                )));
+            }
+
+            let trimmed = line.trim_end_matches(['\r', '\n']);
+            if trimmed.is_empty() {
+                break;
+            }
+
+            if let Some((name, value)) = trimmed.split_once(':') {
+                let header_name = CONTENT_LENGTH_HEADER.trim_end_matches(':');
+                if name.trim().eq_ignore_ascii_case(header_name) {
+                    let parsed = value.trim().parse::<usize>().map_err(|_| {
+                        TransportError::Io(std::io::Error::new(
+                            std::io::ErrorKind::InvalidData,
+                            "invalid Content-Length value",
+                        ))
+                    })?;
+                    content_length = Some(parsed);
+                }
+            }
         }
 
-        let trimmed = line.trim().to_string();
-        if trimmed.is_empty() {
-            // Skip blank lines and read the next one
-            return self.read_message();
+        let len = content_length.ok_or_else(|| {
+            TransportError::Io(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "missing Content-Length header",
+            ))
+        })?;
+
+        if len > MAX_MESSAGE_BYTES {
+            return Err(TransportError::MessageTooLarge(len, MAX_MESSAGE_BYTES));
         }
 
-        if trimmed.len() > MAX_MESSAGE_BYTES {
-            return Err(TransportError::MessageTooLarge(
-                trimmed.len(),
-                MAX_MESSAGE_BYTES,
-            ));
-        }
-
-        Ok(trimmed)
+        let mut body = vec![0u8; len];
+        self.reader.read_exact(&mut body)?;
+        let message = String::from_utf8(body).map_err(|_| TransportError::InvalidUtf8)?;
+        Ok(message)
     }
 
-    /// Write a JSON message followed by a newline.
+    /// Write a JSON message with MCP Content-Length framing.
     pub fn write_message(&mut self, content: &str) -> Result<(), TransportError> {
+        let header = format!("Content-Length: {}\r\n\r\n", content.len());
+        self.writer.write_all(header.as_bytes())?;
         self.writer.write_all(content.as_bytes())?;
-        self.writer.write_all(b"\n")?;
         self.writer.flush()?;
         Ok(())
     }
@@ -99,24 +124,33 @@ mod tests {
 
     #[test]
     fn test_read_write_message() {
-        let input = "{\"test\":true}\n";
+        let input = b"Content-Length: 13\r\n\r\n{\"test\":true}";
         let mut output = Vec::new();
 
-        let mut transport =
-            StdioTransport::new(std::io::Cursor::new(input.as_bytes().to_vec()), &mut output);
+        let mut transport = StdioTransport::new(std::io::Cursor::new(input.to_vec()), &mut output);
         let msg = transport.read_message().unwrap();
         assert_eq!(msg, "{\"test\":true}");
+
+        transport.write_message("hello").unwrap();
+        let written = String::from_utf8(output).unwrap();
+        assert_eq!(written, "Content-Length: 5\r\n\r\nhello");
     }
 
     #[test]
-    fn test_skip_blank_lines() {
-        let input = "\n\n{\"test\":true}\n";
+    fn test_case_insensitive_content_length() {
+        let input = b"content-length: 4\r\n\r\ntest";
         let mut output = Vec::new();
-
-        let mut transport =
-            StdioTransport::new(std::io::Cursor::new(input.as_bytes().to_vec()), &mut output);
+        let mut transport = StdioTransport::new(std::io::Cursor::new(input.to_vec()), &mut output);
         let msg = transport.read_message().unwrap();
-        assert_eq!(msg, "{\"test\":true}");
+        assert_eq!(msg, "test");
+    }
+
+    #[test]
+    fn test_missing_content_length_fails() {
+        let input = b"No-Header: value\r\n\r\n{}";
+        let mut output = Vec::new();
+        let mut transport = StdioTransport::new(std::io::Cursor::new(input.to_vec()), &mut output);
+        assert!(transport.read_message().is_err());
     }
 
     #[test]
