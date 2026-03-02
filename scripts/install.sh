@@ -251,7 +251,7 @@ install_from_source() {
     fi
 
     if [ "$DRY_RUN" = true ]; then
-        echo "  [dry-run] Would run: cargo install --git ${git_url} ${source_ref_text}--locked --force agentic-time"
+        echo "  [dry-run] Would run: cargo install --git ${git_url} ${source_ref_text}--locked --force agentic-time-cli"
         echo "  [dry-run] Would run: cargo install --git ${git_url} ${source_ref_text}--locked --force agentic-time-mcp"
         echo "  [dry-run] Would copy from ${cargo_bin}/(atime,${BINARY_NAME}) to ${INSTALL_DIR}/"
         return
@@ -265,12 +265,12 @@ install_from_source() {
 
     if [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
         run_with_progress 45 68 "Installing agentic-time" \
-            cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-time
+            cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-time-cli
         run_with_progress 68 85 "Installing agentic-time-mcp" \
             cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-time-mcp
     else
         run_with_progress 45 68 "Installing agentic-time" \
-            cargo install --git "${git_url}" --locked --force agentic-time
+            cargo install --git "${git_url}" --locked --force agentic-time-cli
         run_with_progress 68 85 "Installing agentic-time-mcp" \
             cargo install --git "${git_url}" --locked --force agentic-time-mcp
     fi
@@ -481,6 +481,7 @@ PY
 merge_config() {
     local config_file="$1"
     local config_dir
+    local tmp_file
     config_dir="$(dirname "$config_file")"
 
     if [ "$DRY_RUN" = true ]; then
@@ -493,14 +494,15 @@ merge_config() {
     if command -v jq >/dev/null 2>&1; then
         if [ -f "$config_file" ] && [ -s "$config_file" ]; then
             echo "    Existing config found, merging..."
+            tmp_file="$(mktemp "${config_file}.tmp.XXXXXX")"
             if jq --arg key "$SERVER_KEY" \
                --arg cmd "${MCP_ENTRYPOINT}" \
                --argjson args "$SERVER_ARGS_JSON" \
                '.mcpServers //= {} | .mcpServers[$key] = {"command": $cmd, "args": $args}' \
-               "$config_file" > "$config_file.tmp"; then
-                mv "$config_file.tmp" "$config_file"
+               "$config_file" > "$tmp_file" && [ -f "$tmp_file" ]; then
+                mv "$tmp_file" "$config_file"
             else
-                rm -f "$config_file.tmp"
+                rm -f "$tmp_file"
                 echo "    jq merge failed; retrying with python3 fallback..."
                 merge_config_with_python "$config_file"
             fi
