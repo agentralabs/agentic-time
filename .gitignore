@@ -1,29 +1,30 @@
-/target/
-**/target/
-**/*.rs.bk
-*.pdb
-.DS_Store
+# Rust
+target/
 *.swp
 *.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.fleet/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
 *~
-planning-docs/
-docs/internal/
-ECOSYSTEM-CONVENTIONS.md
-
-# Local goals (internal only)
-goals/
-
-# LaTeX build artifacts
-*.aux
-*.bbl
-*.blg
-*.log
-*.out
-*.fls
-*.fdb_latexmk
-*.synctex.gz
-python/tests/__pycache__/
-python/.coverage
-python/dist/
-python/.pytest_cache/
-npm/wasm/Cargo.lock
