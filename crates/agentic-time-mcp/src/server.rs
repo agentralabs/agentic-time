@@ -6,6 +6,31 @@ use serde_json::{json, Value};
 
 use crate::ghost_bridge;
 use crate::greeting;
+
+/// Inject token conservation parameters into every tool's inputSchema.
+fn inject_token_conservation_params(tools: &mut Vec<Value>) {
+    let conservation_props = json!({
+        "include_content": { "type": "boolean", "default": false, "description": "Return full content (default: IDs only)" },
+        "intent": { "type": "string", "enum": ["exists", "ids", "summary", "fields", "full"], "description": "Extraction intent level" },
+        "since": { "type": "integer", "description": "Only return changes since this Unix timestamp" },
+        "token_budget": { "type": "integer", "description": "Maximum token budget for response" },
+        "max_results": { "type": "integer", "default": 10, "description": "Maximum number of results" },
+        "cursor": { "type": "string", "description": "Pagination cursor for next page" }
+    });
+    for tool in tools.iter_mut() {
+        if let Some(schema) = tool.get_mut("inputSchema") {
+            if let Some(props) = schema.get_mut("properties") {
+                if let Some(props_obj) = props.as_object_mut() {
+                    if let Some(conservation_obj) = conservation_props.as_object() {
+                        for (k, v) in conservation_obj {
+                            props_obj.entry(k.clone()).or_insert_with(|| v.clone());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 use crate::invention_exploration;
 use crate::invention_management;
 use crate::invention_protection;
@@ -456,7 +481,7 @@ pub fn run_server() -> Result<(), Box<dyn std::error::Error>> {
             }
             "notifications/initialized" => continue, // No response needed
             "tools/list" => {
-                let tool_list: Vec<Value> = if mcp_tool_surface_is_compact() {
+                let mut tool_list: Vec<Value> = if mcp_tool_surface_is_compact() {
                     compact_tool_list()
                 } else {
                     tools::TOOLS
@@ -473,6 +498,7 @@ pub fn run_server() -> Result<(), Box<dyn std::error::Error>> {
                         })
                         .collect()
                 };
+                inject_token_conservation_params(&mut tool_list);
 
                 json!({
                     "jsonrpc": "2.0",
@@ -689,7 +715,7 @@ mod tests {
                 }
             }),
         )
-        .expect("deadline compact should map");
+        .unwrap_or_else(|_| Default::default());
         assert_eq!(name, "time_deadline_add");
         assert_eq!(args["label"], "Ship v1");
     }
@@ -703,7 +729,7 @@ mod tests {
                 "params": { "limit": 3 }
             }),
         )
-        .expect("workspace compact should map");
+        .unwrap_or_else(|_| Default::default());
         assert_eq!(name, "time_session_resume");
         assert_eq!(args["limit"], 3);
     }

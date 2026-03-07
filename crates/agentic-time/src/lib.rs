@@ -4,6 +4,7 @@
 //! schedules, sequences, and decay in a single `.atime` file.
 
 pub mod bridges;
+pub mod cache;
 pub mod contracts;
 pub mod deadline;
 pub mod decay;
@@ -12,6 +13,8 @@ pub mod error;
 pub mod file_format;
 pub mod indexes;
 pub mod inventions;
+pub mod metrics;
+pub mod query;
 pub mod query_engine;
 pub mod schedule;
 pub mod sequence;

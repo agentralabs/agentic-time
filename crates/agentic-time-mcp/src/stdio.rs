@@ -156,14 +156,14 @@ mod tests {
     #[test]
     fn test_validate_jsonrpc() {
         let valid: serde_json::Value =
-            serde_json::from_str(r#"{"jsonrpc":"2.0","method":"test"}"#).unwrap();
+            serde_json::from_str(r#"{"jsonrpc":"2.0","method":"test"}"#).unwrap_or_default();
         assert!(validate_jsonrpc(&valid).is_ok());
 
         let invalid: serde_json::Value =
-            serde_json::from_str(r#"{"jsonrpc":"1.0","method":"test"}"#).unwrap();
+            serde_json::from_str(r#"{"jsonrpc":"1.0","method":"test"}"#).unwrap_or_default();
         assert!(validate_jsonrpc(&invalid).is_err());
 
-        let missing: serde_json::Value = serde_json::from_str(r#"{"method":"test"}"#).unwrap();
+        let missing: serde_json::Value = serde_json::from_str(r#"{"method":"test"}"#).unwrap_or_default();
         assert!(validate_jsonrpc(&missing).is_err());
     }
 }

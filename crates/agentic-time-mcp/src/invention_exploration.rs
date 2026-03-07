@@ -1122,17 +1122,19 @@ fn handle_timeline_visualize(
                 / edges.len() as f64
         };
 
-        result.as_object_mut().unwrap().insert(
-            "metrics".to_string(),
-            json!({
-                "total_urgency": (total_urgency * 100.0).round() / 100.0,
-                "average_edge_weight": (avg_weight * 100.0).round() / 100.0,
-                "graph_density": if nodes.len() > 1 {
-                    (edges.len() as f64 / (nodes.len() as f64 * (nodes.len() as f64 - 1.0) / 2.0) * 100.0).round() / 100.0
-                } else { 0.0 },
-                "connectivity": nodes.len() as f64 - 1.0,
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "metrics".to_string(),
+                json!({
+                    "total_urgency": (total_urgency * 100.0).round() / 100.0,
+                    "average_edge_weight": (avg_weight * 100.0).round() / 100.0,
+                    "graph_density": if nodes.len() > 1 {
+                        (edges.len() as f64 / (nodes.len() as f64 * (nodes.len() as f64 - 1.0) / 2.0) * 100.0).round() / 100.0
+                    } else { 0.0 },
+                    "connectivity": nodes.len() as f64 - 1.0,
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -1532,24 +1534,25 @@ fn handle_clone_status(
                 })
             })
             .collect();
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("findings".to_string(), json!(findings));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("findings".to_string(), json!(findings));
+        }
     }
 
     if include_metrics {
-        result.as_object_mut().unwrap().insert(
-            "metrics".to_string(),
-            json!({
-                "branches_explored": (pseudo_random(seed, 3) * 20.0 + 5.0).round(),
-                "branches_pruned": (pseudo_random(seed, 4) * 10.0 + 2.0).round(),
-                "depth_reached": (pseudo_random(seed, 5) * 4.0 + 1.0).round(),
-                "backtrack_count": (pseudo_random(seed, 6) * 5.0).round(),
-                "context_entities": deadline_count + schedule_count,
-                "memory_usage_kb": (pseudo_random(seed, 7) * 512.0 + 64.0).round(),
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "metrics".to_string(),
+                json!({
+                    "branches_explored": (pseudo_random(seed, 3) * 20.0 + 5.0).round(),
+                    "branches_pruned": (pseudo_random(seed, 4) * 10.0 + 2.0).round(),
+                    "depth_reached": (pseudo_random(seed, 5) * 4.0 + 1.0).round(),
+                    "backtrack_count": (pseudo_random(seed, 6) * 5.0).round(),
+                    "context_entities": deadline_count + schedule_count,
+                    "memory_usage_kb": (pseudo_random(seed, 7) * 512.0 + 64.0).round(),
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -1739,14 +1742,10 @@ fn handle_echo_amplify(
             }
         }
 
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("speculative_effects".to_string(), json!(speculative));
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("speculative_count".to_string(), json!(speculative.len()));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("speculative_effects".to_string(), json!(speculative));
+            obj.insert("speculative_count".to_string(), json!(speculative.len()));
+        }
     }
 
     Ok(result)

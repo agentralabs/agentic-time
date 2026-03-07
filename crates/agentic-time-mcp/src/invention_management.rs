@@ -641,19 +641,21 @@ fn handle_future_recall(
         let prediction_accuracy = pseudo_random(seed, 0) * 0.3 + 0.5;
         let focus_accuracy = pseudo_random(seed, 1) * 0.4 + 0.4;
 
-        result.as_object_mut().unwrap().insert(
-            "evaluation".to_string(),
-            json!({
-                "prediction_accuracy": (prediction_accuracy * 100.0).round() / 100.0,
-                "focus_accuracy": (focus_accuracy * 100.0).round() / 100.0,
-                "items_correctly_predicted": (deadlines.len() as f64 * prediction_accuracy).round() as u32,
-                "surprises": overdue,
-                "overall_grade": if prediction_accuracy > 0.8 { "A" }
-                                 else if prediction_accuracy > 0.6 { "B" }
-                                 else if prediction_accuracy > 0.4 { "C" }
-                                 else { "D" },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "evaluation".to_string(),
+                json!({
+                    "prediction_accuracy": (prediction_accuracy * 100.0).round() / 100.0,
+                    "focus_accuracy": (focus_accuracy * 100.0).round() / 100.0,
+                    "items_correctly_predicted": (deadlines.len() as f64 * prediction_accuracy).round() as u32,
+                    "surprises": overdue,
+                    "overall_grade": if prediction_accuracy > 0.8 { "A" }
+                                     else if prediction_accuracy > 0.6 { "B" }
+                                     else if prediction_accuracy > 0.4 { "C" }
+                                     else { "D" },
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -811,16 +813,18 @@ fn handle_debt_analyze(
             .and_then(|p| p.get("total_debt_minutes").and_then(|v| v.as_f64()))
             .unwrap_or(report.total_debt_minutes as f64);
 
-        result.as_object_mut().unwrap().insert(
-            "projections".to_string(),
-            json!({
-                "data": projections,
-                "growth_rate": if report.total_debt_minutes > 0 {
-                    ((final_debt / report.total_debt_minutes as f64 - 1.0) * 100.0).round() / 100.0
-                } else { 0.0 },
-                "final_debt_minutes": final_debt.round(),
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "projections".to_string(),
+                json!({
+                    "data": projections,
+                    "growth_rate": if report.total_debt_minutes > 0 {
+                        ((final_debt / report.total_debt_minutes as f64 - 1.0) * 100.0).round() / 100.0
+                    } else { 0.0 },
+                    "final_debt_minutes": final_debt.round(),
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -1088,21 +1092,23 @@ fn handle_debt_track(args: Value, engine: &mut agentic_time::WriteEngine) -> Res
             0.0
         };
 
-        result.as_object_mut().unwrap().insert(
-            "velocity".to_string(),
-            json!({
-                "debt_velocity_per_week": (velocity * 10.0).round() / 10.0,
-                "acceleration": (acceleration * 100.0).round() / 100.0,
-                "time_to_zero_weeks": if velocity < 0.0 {
-                    Some((-(report.total_debt_minutes as f64) / velocity).ceil())
-                } else {
-                    None
-                },
-                "status": if velocity < -5.0 { "paying_down" }
-                          else if velocity > 5.0 { "accumulating" }
-                          else { "stable" },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "velocity".to_string(),
+                json!({
+                    "debt_velocity_per_week": (velocity * 10.0).round() / 10.0,
+                    "acceleration": (acceleration * 100.0).round() / 100.0,
+                    "time_to_zero_weeks": if velocity < 0.0 {
+                        Some((-(report.total_debt_minutes as f64) / velocity).ceil())
+                    } else {
+                        None
+                    },
+                    "status": if velocity < -5.0 { "paying_down" }
+                              else if velocity > 5.0 { "accumulating" }
+                              else { "stable" },
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -1150,22 +1156,24 @@ fn handle_gravity_detect(
 
             if include_escape {
                 let esc_vel = escape_velocity(w.mass, w.radius_days as f64 * 24.0);
-                well.as_object_mut().unwrap().insert(
-                    "escape_velocity".to_string(),
-                    json!((esc_vel * 100.0).round() / 100.0),
-                );
-                well.as_object_mut().unwrap().insert(
-                    "escape_difficulty".to_string(),
-                    json!(if esc_vel > 2.0 {
-                        "very_hard"
-                    } else if esc_vel > 1.0 {
-                        "hard"
-                    } else if esc_vel > 0.5 {
-                        "moderate"
-                    } else {
-                        "easy"
-                    }),
-                );
+                if let Some(obj) = well.as_object_mut() {
+                    obj.insert(
+                        "escape_velocity".to_string(),
+                        json!((esc_vel * 100.0).round() / 100.0),
+                    );
+                    obj.insert(
+                        "escape_difficulty".to_string(),
+                        json!(if esc_vel > 2.0 {
+                            "very_hard"
+                        } else if esc_vel > 1.0 {
+                            "hard"
+                        } else if esc_vel > 0.5 {
+                            "moderate"
+                        } else {
+                            "easy"
+                        }),
+                    );
+                }
             }
 
             well
@@ -1183,16 +1191,14 @@ fn handle_gravity_detect(
     for well in &mut well_data {
         if let Some(event_id) = well.get("event_id").and_then(|v| v.as_str()) {
             if let Some(d) = deadlines.iter().find(|d| d.id.to_string() == event_id) {
-                well.as_object_mut()
-                    .unwrap()
-                    .insert("label".to_string(), json!(d.label));
-                well.as_object_mut()
-                    .unwrap()
-                    .insert("due_at".to_string(), json!(d.due_at.to_rfc3339()));
-                well.as_object_mut().unwrap().insert(
-                    "due_at_epoch".to_string(),
-                    json!(d.due_at.timestamp() as f64),
-                );
+                if let Some(obj) = well.as_object_mut() {
+                    obj.insert("label".to_string(), json!(d.label));
+                    obj.insert("due_at".to_string(), json!(d.due_at.to_rfc3339()));
+                    obj.insert(
+                        "due_at_epoch".to_string(),
+                        json!(d.due_at.timestamp() as f64),
+                    );
+                }
             }
         }
     }
@@ -1205,10 +1211,9 @@ fn handle_gravity_detect(
 
     if include_tidal && well_data.len() >= 2 {
         let tidal = compute_tidal_forces(&well_data);
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("tidal_forces".to_string(), json!(tidal));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("tidal_forces".to_string(), json!(tidal));
+        }
     }
 
     Ok(result)
@@ -1368,18 +1373,20 @@ fn handle_entanglement_status(
             .sum::<f64>()
             / entanglement_count as f64;
 
-        result.as_object_mut().unwrap().insert(
-            "coherence_metrics".to_string(),
-            json!({
-                "average_coherence": (avg_coherence * 100.0).round() / 100.0,
-                "min_coherence": entanglements.iter()
-                    .filter_map(|e| e.get("coherence").and_then(|v| v.as_f64()))
-                    .fold(f64::INFINITY, f64::min),
-                "decoherence_risk": if avg_coherence < 0.5 { "high" }
-                                    else if avg_coherence < 0.7 { "medium" }
-                                    else { "low" },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "coherence_metrics".to_string(),
+                json!({
+                    "average_coherence": (avg_coherence * 100.0).round() / 100.0,
+                    "min_coherence": entanglements.iter()
+                        .filter_map(|e| e.get("coherence").and_then(|v| v.as_f64()))
+                        .fold(f64::INFINITY, f64::min),
+                    "decoherence_risk": if avg_coherence < 0.5 { "high" }
+                                        else if avg_coherence < 0.7 { "medium" }
+                                        else { "low" },
+                }),
+            );
+        }
     }
 
     if include_violations {
@@ -1392,18 +1399,20 @@ fn handle_entanglement_status(
             })
             .collect();
 
-        result.as_object_mut().unwrap().insert(
-            "violations".to_string(),
-            json!({
-                "count": violations.len(),
-                "violated_entanglements": violations.iter().map(|v| {
-                    v.get("id").cloned().unwrap_or(json!("unknown"))
-                }).collect::<Vec<_>>(),
-                "severity": if violations.len() > 2 { "critical" }
-                            else if !violations.is_empty() { "warning" }
-                            else { "clean" },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "violations".to_string(),
+                json!({
+                    "count": violations.len(),
+                    "violated_entanglements": violations.iter().map(|v| {
+                        v.get("id").cloned().unwrap_or(json!("unknown"))
+                    }).collect::<Vec<_>>(),
+                    "severity": if violations.len() > 2 { "critical" }
+                                else if !violations.is_empty() { "warning" }
+                                else { "clean" },
+                }),
+            );
+        }
     }
 
     Ok(result)
@@ -1562,10 +1571,9 @@ fn handle_wormhole_create(
             }));
         }
 
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("extracted_insights".to_string(), json!(insights));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("extracted_insights".to_string(), json!(insights));
+        }
     }
 
     Ok(result)
@@ -1613,22 +1621,24 @@ fn handle_wormhole_traverse(
         let overall_impact =
             (relevance * 0.4 + actionability * 0.3 + novelty * 0.3).clamp(0.0, 1.0);
 
-        result.as_object_mut().unwrap().insert(
-            "impact_assessment".to_string(),
-            json!({
-                "relevance": (relevance * 100.0).round() / 100.0,
-                "actionability": (actionability * 100.0).round() / 100.0,
-                "novelty": (novelty * 100.0).round() / 100.0,
-                "overall_impact": (overall_impact * 100.0).round() / 100.0,
-                "recommendation": if overall_impact > 0.7 {
-                    "High-impact insight — apply immediately"
-                } else if overall_impact > 0.4 {
-                    "Moderate insight — consider for future decisions"
-                } else {
-                    "Low impact — archive for reference"
-                },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "impact_assessment".to_string(),
+                json!({
+                    "relevance": (relevance * 100.0).round() / 100.0,
+                    "actionability": (actionability * 100.0).round() / 100.0,
+                    "novelty": (novelty * 100.0).round() / 100.0,
+                    "overall_impact": (overall_impact * 100.0).round() / 100.0,
+                    "recommendation": if overall_impact > 0.7 {
+                        "High-impact insight — apply immediately"
+                    } else if overall_impact > 0.4 {
+                        "Moderate insight — consider for future decisions"
+                    } else {
+                        "Low impact — archive for reference"
+                    },
+                }),
+            );
+        }
     }
 
     Ok(result)

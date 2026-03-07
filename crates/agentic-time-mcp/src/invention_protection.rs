@@ -769,10 +769,9 @@ fn handle_anomaly_scan(
             }));
         }
 
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("recommendations".to_string(), json!(recommendations));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("recommendations".to_string(), json!(recommendations));
+        }
     }
 
     Ok(result)
@@ -992,16 +991,18 @@ fn handle_immune_status(
             .collect();
         let trend = linear_trend(&health_values);
 
-        result.as_object_mut().unwrap().insert(
-            "history".to_string(),
-            json!({
-                "data_points": history,
-                "trend": (trend * 100.0).round() / 100.0,
-                "trend_direction": if trend > 0.01 { "improving" }
-                                   else if trend < -0.01 { "degrading" }
-                                   else { "stable" },
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "history".to_string(),
+                json!({
+                    "data_points": history,
+                    "trend": (trend * 100.0).round() / 100.0,
+                    "trend_direction": if trend > 0.01 { "improving" }
+                                       else if trend < -0.01 { "degrading" }
+                                       else { "stable" },
+                }),
+            );
+        }
     }
 
     if include_vulnerabilities {
@@ -1045,10 +1046,9 @@ fn handle_immune_status(
             }));
         }
 
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("vulnerabilities".to_string(), json!(vulnerabilities));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("vulnerabilities".to_string(), json!(vulnerabilities));
+        }
     }
 
     Ok(result)
@@ -1292,10 +1292,9 @@ fn handle_decay_analyze(
 
         if include_projections {
             let projection = project_decay(d, projection_hours, &[], 0.2);
-            model_info
-                .as_object_mut()
-                .unwrap()
-                .insert("projection".to_string(), projection);
+            if let Some(obj) = model_info.as_object_mut() {
+                obj.insert("projection".to_string(), projection);
+            }
         }
 
         models_data.push(model_info);
@@ -1440,17 +1439,15 @@ fn handle_dilation_analyze(
                 },
             }));
         }
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("energy_curve".to_string(), json!(energy_curve));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("energy_curve".to_string(), json!(energy_curve));
+        }
     }
 
     if include_recommendations {
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("recommendations".to_string(), json!(report.recommendations));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("recommendations".to_string(), json!(report.recommendations));
+        }
     }
 
     Ok(result)
@@ -1611,17 +1608,15 @@ fn handle_dilation_report(
     });
 
     if format == "detailed" || format == "executive" {
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("daily_breakdown".to_string(), json!(daily_data));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("daily_breakdown".to_string(), json!(daily_data));
+        }
     }
 
     if format == "detailed" {
-        result
-            .as_object_mut()
-            .unwrap()
-            .insert("recommendations".to_string(), json!(report.recommendations));
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert("recommendations".to_string(), json!(report.recommendations));
+        }
     }
 
     Ok(result)
@@ -1668,18 +1663,20 @@ fn handle_jump_create(
     });
 
     if include_hindsight {
-        result.as_object_mut().unwrap().insert(
-            "hindsight".to_string(),
-            json!({
-                "unknown_facts": jump.unknown_facts.iter().map(|f| json!({
-                    "fact": f.fact,
-                    "discovered_at": f.discovered_at.to_rfc3339(),
-                    "impact": f.impact,
-                    "missed_signals": f.missed_signals,
-                })).collect::<Vec<_>>(),
-                "unknown_facts_count": jump.unknown_facts.len(),
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "hindsight".to_string(),
+                json!({
+                    "unknown_facts": jump.unknown_facts.iter().map(|f| json!({
+                        "fact": f.fact,
+                        "discovered_at": f.discovered_at.to_rfc3339(),
+                        "impact": f.impact,
+                        "missed_signals": f.missed_signals,
+                    })).collect::<Vec<_>>(),
+                    "unknown_facts_count": jump.unknown_facts.len(),
+                }),
+            );
+        }
     }
 
     if reconstruct {
@@ -1701,13 +1698,15 @@ fn handle_jump_create(
             }))
             .collect();
 
-        result.as_object_mut().unwrap().insert(
-            "reconstructed_state".to_string(),
-            json!({
-                "deadlines_at_destination": deadlines,
-                "deadline_count": deadlines.len(),
-            }),
-        );
+        if let Some(obj) = result.as_object_mut() {
+            obj.insert(
+                "reconstructed_state".to_string(),
+                json!({
+                    "deadlines_at_destination": deadlines,
+                    "deadline_count": deadlines.len(),
+                }),
+            );
+        }
     }
 
     Ok(result)
