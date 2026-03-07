@@ -163,7 +163,8 @@ mod tests {
             serde_json::from_str(r#"{"jsonrpc":"1.0","method":"test"}"#).unwrap_or_default();
         assert!(validate_jsonrpc(&invalid).is_err());
 
-        let missing: serde_json::Value = serde_json::from_str(r#"{"method":"test"}"#).unwrap_or_default();
+        let missing: serde_json::Value =
+            serde_json::from_str(r#"{"method":"test"}"#).unwrap_or_default();
         assert!(validate_jsonrpc(&missing).is_err());
     }
 }
