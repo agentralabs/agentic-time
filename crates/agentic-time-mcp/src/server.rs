@@ -8,7 +8,7 @@ use crate::ghost_bridge;
 use crate::greeting;
 
 /// Inject token conservation parameters into every tool's inputSchema.
-fn inject_token_conservation_params(tools: &mut Vec<Value>) {
+fn inject_token_conservation_params(tools: &mut [Value]) {
     let conservation_props = json!({
         "include_content": { "type": "boolean", "default": false, "description": "Return full content (default: IDs only)" },
         "intent": { "type": "string", "enum": ["exists", "ids", "summary", "fields", "full"], "description": "Extraction intent level" },
